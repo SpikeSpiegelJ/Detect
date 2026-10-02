@@ -18,8 +18,8 @@ def yolo2coco(arg):
 
     assert os.path.exists(arg.image_path)
     assert os.path.exists(arg.label_path)
-    
-    originImagesDir = arg.image_path                                   
+
+    originImagesDir = arg.image_path
     originLabelsDir = arg.label_path
     # images dir name
     indexes = os.listdir(originImagesDir)
@@ -27,7 +27,7 @@ def yolo2coco(arg):
     dataset = {'categories': [], 'annotations': [], 'images': []}
     for i, cls in enumerate(classes, 0):
         dataset['categories'].append({'id': i, 'name': cls, 'supercategory': 'mark'})
-    
+
     # 标注的id
     ann_id_cnt = 0
     for k, index in enumerate(tqdm(indexes)):
@@ -64,7 +64,7 @@ def yolo2coco(arg):
                 x2 = (x + w / 2) * W
                 y2 = (y + h / 2) * H
                 # 标签序号从0开始计算, coco2017数据集标号混乱，不管它了。
-                cls_id = int(label[0])   
+                cls_id = int(label[0])
                 width = max(0, x2 - x1)
                 height = max(0, y2 - y1)
                 dataset['annotations'].append({
