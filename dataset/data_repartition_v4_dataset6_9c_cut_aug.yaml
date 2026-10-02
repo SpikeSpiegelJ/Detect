@@ -1,0 +1,20 @@
+# Dataset_6 real samples plus the previously validated train-only cut crop augmentation.
+path: E:/Python-program/Detect/ultralytics/dataset/repartition_v4_dataset6_9c
+train:
+  - images/train
+  - E:/Python-program/Detect/ultralytics/dataset/repartition_v3/images/train_cut_context_v4
+  - E:/Python-program/Detect/ultralytics/dataset/repartition_v3/images/train_cut_detail_v4
+val: images/val
+test: images/test
+
+nc: 9
+names:
+  0: coupler
+  1: antenna_s
+  2: RRU
+  3: Feeder_RRU
+  4: antenna_b
+  5: cut
+  6: Feeder_antenna
+  7: POWER
+  8: BOX

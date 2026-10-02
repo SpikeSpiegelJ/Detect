@@ -1,0 +1,13 @@
+﻿item,value
+general models,YOLO26s v9 + YOLO26m v9
+specialist,YOLO26s two-class specialist: cut and Feeder_antenna
+general inference,TTA
+specialist inference,single scale
+input size,1280
+batch size,2
+NMS IoU,0.5
+specialist weight,1.0
+test images,535
+test instances,1178
+hardware,NVIDIA GeForce RTX 3060 12 GB
+software,Ultralytics 8.4.104; Python 3.13.14; torch 2.12.1+cu126

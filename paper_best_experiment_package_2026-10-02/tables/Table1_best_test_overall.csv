@@ -1,0 +1,2 @@
+﻿method,images,instances,precision,recall,mAP50,mAP50-95,inference_ms_per_image
+Proposed generalist-specialist fusion,535,1178,0.855,0.84,0.8841,0.5202,200.7
