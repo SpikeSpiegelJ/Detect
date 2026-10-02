@@ -1,0 +1,17 @@
+# Fully merged and deterministically stratified real-image dataset.
+path: E:/Python-program/Detect/ultralytics/dataset/repartition_v5_dataset6_9c
+train: images/train
+val: images/val
+test: images/test
+
+nc: 9
+names:
+  0: coupler
+  1: antenna_s
+  2: RRU
+  3: Feeder_RRU
+  4: antenna_b
+  5: cut
+  6: Feeder_antenna
+  7: POWER
+  8: BOX

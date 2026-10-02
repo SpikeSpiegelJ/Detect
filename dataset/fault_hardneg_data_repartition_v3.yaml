@@ -1,0 +1,11 @@
+# The same specialist dataset, with train-only hard negatives added after mining.
+path: E:/Python-program/Detect/ultralytics/dataset/repartition_v3/cut_specialist
+train:
+  - images/train
+  - images/train_hard_negatives
+val: images/val
+test: images/test
+
+nc: 1
+names:
+  0: cut

@@ -1,0 +1,36 @@
+{
+  "source": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected",
+  "seed": 260927,
+  "negative_ratio": 0.75,
+  "train": {
+    "images": 1754,
+    "instances": [
+      462,
+      540
+    ]
+  },
+  "crops": {
+    "images": 1002,
+    "instances": [
+      462,
+      540
+    ]
+  },
+  "val": {
+    "images": 500,
+    "instances": [
+      229,
+      153
+    ]
+  },
+  "test": {
+    "images": 535,
+    "instances": [
+      121,
+      122
+    ]
+  },
+  "positive_full_images": 1002,
+  "hard_negative_images": 752,
+  "yaml": "E:\\Python-program\\Detect\\ultralytics\\dataset\\data_repartition_v14_cut_feeder_specialist.yaml"
+}

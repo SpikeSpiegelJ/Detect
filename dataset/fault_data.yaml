@@ -1,0 +1,8 @@
+path: E:/Python-program/Detect/ultralytics/dataset/fault_specialist
+train: images/train
+val: images/val
+test: images/test
+nc: 2
+names:
+  0: Feeder_damage
+  1: cut

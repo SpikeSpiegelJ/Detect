@@ -1,0 +1,29 @@
+# 数据集根目录
+path: E:/Python-program/Detect/ultralytics/dataset
+
+# 图片目录（相对于path）
+train:
+  - images/train
+  - images/train_all_light_aug
+  - images/train_cut_detail_aug
+  - images/train_fault_aug_v2
+  - images/train_fault_medium_crops
+val: images/val
+test: images/test
+
+# 类别数
+nc: 11
+
+# 类别名称
+names:
+  0: Feeder_damage
+  1: coupler
+  2: antenna_s
+  3: RRU
+  4: Feeder_RRU
+  5: antenna_b
+  6: cut
+  7: damaged
+  8: Feeder_antenna
+  9: POWER
+  10: BOX

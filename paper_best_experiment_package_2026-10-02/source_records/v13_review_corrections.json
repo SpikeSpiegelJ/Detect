@@ -1,0 +1,119 @@
+{
+  "decisions": {
+    "annotation_error": 14,
+    "acceptable": 24,
+    "model_error": 22,
+    "uncertain": 1
+  },
+  "validated_rows": 61,
+  "corrections": 14,
+  "actions": {
+    "add_box": 9,
+    "change_existing_box": 5
+  },
+  "output": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected",
+  "yaml": "E:\\Python-program\\Detect\\ultralytics\\dataset\\data_repartition_v13_cut_feeder_hard_corrected_9c.yaml",
+  "changed": {
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_test_532c40166a3b4f18458a.txt": [
+      {
+        "row": "1",
+        "action": "add",
+        "class": "Feeder_RRU"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_test_bca4b78f4a13f54de4c1.txt": [
+      {
+        "row": "3",
+        "action": "reclassify",
+        "from": "cut",
+        "to": "cut"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_0443eb3c02e17feddb03.txt": [
+      {
+        "row": "6",
+        "action": "add",
+        "class": "antenna_s"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_2b670a8a0c128e839536.txt": [
+      {
+        "row": "11",
+        "action": "reclassify",
+        "from": "Feeder_antenna",
+        "to": "Feeder_RRU"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_542940b19719d1cc3da7.txt": [
+      {
+        "row": "16",
+        "action": "add",
+        "class": "Feeder_RRU"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_74f5887f0cffacbe7521.txt": [
+      {
+        "row": "20",
+        "action": "add",
+        "class": "cut"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_8dfdee9b53f6d23db77e.txt": [
+      {
+        "row": "23",
+        "action": "add",
+        "class": "cut"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_99ad3618a1dcdd89eacd.txt": [
+      {
+        "row": "24",
+        "action": "reclassify",
+        "from": "antenna_s",
+        "to": "antenna_b"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_be66b6f7ab67e36e9f58.txt": [
+      {
+        "row": "26",
+        "action": "reclassify",
+        "from": "Feeder_RRU",
+        "to": "Feeder_antenna"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_c221ede5ff307b74dd34.txt": [
+      {
+        "row": "27",
+        "action": "add",
+        "class": "Feeder_RRU"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_train__base_train_ccac95998da48e33e597.txt": [
+      {
+        "row": "28",
+        "action": "reclassify",
+        "from": "Feeder_antenna",
+        "to": "Feeder_RRU"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_val__base_train_0a45658dce832e3368f5.txt": [
+      {
+        "row": "38",
+        "action": "add",
+        "class": "cut"
+      },
+      {
+        "row": "39",
+        "action": "add",
+        "class": "cut"
+      }
+    ],
+    "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\labels\\val\\v8_val__base_train_7bf9e686985efd9f3f80.txt": [
+      {
+        "row": "47",
+        "action": "add",
+        "class": "cut"
+      }
+    ]
+  }
+}

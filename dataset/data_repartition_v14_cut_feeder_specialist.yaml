@@ -1,0 +1,10 @@
+path: E:/Python-program/Detect/ultralytics/dataset/repartition_v14_cut_feeder_specialist
+train:
+- images/train
+- images/train_context
+val: images/val
+test: images/test
+nc: 2
+names:
+  0: cut
+  1: Feeder_antenna

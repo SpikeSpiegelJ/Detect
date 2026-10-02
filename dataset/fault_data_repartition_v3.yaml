@@ -1,0 +1,9 @@
+# One-class cut specialist built only from dataset/repartition_v3.
+path: E:/Python-program/Detect/ultralytics/dataset/repartition_v3/cut_specialist
+train: images/train
+val: images/val
+test: images/test
+
+nc: 1
+names:
+  0: cut
