@@ -17,6 +17,7 @@ V6_WEIGHTS = ROOT / "runs" / "train" / "yolo12s_p2_repartition_v6_dataset7_9c" /
 V6_DATA = ROOT / "dataset" / "data_rep     artition_v6_dataset7_9c.yaml"
 V7_DATA = ROOT / "dataset" / "data_repartition_v7_dataset8_9c.yaml"
 V8_DATA = ROOT / "dataset" / "data_repartition_v8_dataset9_9c.yaml"
+V9_DATA = ROOT / "dataset" / "data_repartition_v9_trainval_9c.yaml"
 V10_AUGMENTED_DATA = ROOT / "dataset" / "data_repartition_v10_augmented_9c.yaml"
 V11_TARGET_CROP_DATA = ROOT / "dataset" / "data_repartition_v11_target_crop_9c.yaml"
 V13_CUT_FEEDER_HARD_DATA = ROOT / "dataset" / "data_repartition_v13_cut_feeder_hard_9c.yaml"
@@ -274,6 +275,23 @@ PRESETS["v15_oof_reviewed"] = {
     "patience": 10,
     "save_period": -1,
 }
+PRESETS["paper_elongation_control"] = {
+    **PRESETS["v10_augmented_yolo26s_ft"],
+    "model": V9_YOLO26S_WEIGHTS,
+    "weights": None,
+    "data": V9_DATA,
+    "name": "paper_yolo26s_elongation_control_seed0",
+    "epochs": 15,
+    "patience": 6,
+    "save_period": -1,
+    "elongation_gain": 0.0,
+    "elongation_threshold": 4.0,
+}
+PRESETS["paper_elongation_loss"] = {
+    **PRESETS["paper_elongation_control"],
+    "name": "paper_yolo26s_elongation_loss_seed0",
+    "elongation_gain": 1.0,
+}
 
 
 def build_model(args):
@@ -346,6 +364,8 @@ def parse_args():
     parser.add_argument("--box", type=float, help="Box loss gain. Defaults to the framework setting.")
     parser.add_argument("--cls", type=float, help="Classification loss gain. Defaults to the framework setting.")
     parser.add_argument("--dfl", type=float, help="Distance regression loss gain. Defaults to the framework setting.")
+    parser.add_argument("--elongation-gain", type=float, help="Normalized regression emphasis for elongated boxes.")
+    parser.add_argument("--elongation-threshold", type=float, help="Aspect ratio that starts elongated-box emphasis.")
     parser.add_argument("--tal-topk", type=int, help="Task-aligned assigner candidates per ground-truth box.")
     parser.add_argument("--patience", type=int, help="Early-stopping patience. Defaults to the selected preset.")
     parser.add_argument("--save-period", type=int, help="Save every N epochs. Negative values disable periodic saves.")
@@ -413,6 +433,8 @@ def main():
         box=args.box if args.box is not None else 7.5,
         cls=args.cls if args.cls is not None else 0.5,
         dfl=args.dfl if args.dfl is not None else 1.5,
+        elongation_gain=args.elongation_gain if args.elongation_gain is not None else 0.0,
+        elongation_threshold=args.elongation_threshold if args.elongation_threshold is not None else 4.0,
         tal_topk=args.tal_topk if args.tal_topk is not None else 10,
         patience=args.patience,
         save_period=args.save_period if args.save_period is not None else -1,

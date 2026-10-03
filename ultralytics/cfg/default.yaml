@@ -107,6 +107,8 @@ cls: 0.5 # (float) classification loss gain
 cls_pw: 0.0 # (float) class weights power for handling class imbalance (0.0=disable, 1.0=full inverse frequency)
 fl_gamma: 0.0 # (float) focal classification loss gamma (0.0=disable)
 dfl: 1.5 # (float) distribution focal loss gain
+elongation_gain: 0.0 # (float) extra normalized regression emphasis above the elongation threshold (0.0=disable)
+elongation_threshold: 4.0 # (float) width-height aspect ratio that starts elongation-aware regression emphasis
 tal_topk: 10 # (int) task-aligned assigner candidates per ground-truth box
 pose: 12.0 # (float) pose loss gain (pose tasks)
 kobj: 1.0 # (float) keypoint objectness loss gain (pose tasks)

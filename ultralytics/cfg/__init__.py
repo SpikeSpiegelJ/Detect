@@ -203,6 +203,8 @@ CFG_FLOAT_KEYS = frozenset(
         "cls",
         "fl_gamma",
         "dfl",
+        "elongation_gain",
+        "elongation_threshold",
         "dlog",
         "dgrad",
         "dis",

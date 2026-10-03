@@ -111,10 +111,29 @@ class DFLoss(nn.Module):
 class BboxLoss(nn.Module):
     """Criterion class for computing training losses for bounding boxes."""
 
-    def __init__(self, reg_max: int = 16):
+    def __init__(self, reg_max: int = 16, elongation_gain: float = 0.0, elongation_threshold: float = 4.0):
         """Initialize the BboxLoss module with regularization maximum and DFL settings."""
         super().__init__()
+        if elongation_gain < 0 or elongation_threshold <= 1:
+            raise ValueError("elongation_gain must be non-negative and elongation_threshold must be greater than 1")
         self.dfl_loss = DFLoss(reg_max) if reg_max > 1 else None
+        self.elongation_gain = elongation_gain
+        self.elongation_threshold = elongation_threshold
+
+    def regression_weight(
+        self, target_bboxes: torch.Tensor, target_scores: torch.Tensor, fg_mask: torch.Tensor
+    ) -> torch.Tensor:
+        """Return quality weights with normalized extra emphasis for elongated targets."""
+        weight = target_scores[fg_mask].sum(-1, keepdim=True)
+        if not self.elongation_gain:
+            return weight
+        boxes = target_bboxes[fg_mask]
+        width = (boxes[:, 2] - boxes[:, 0]).clamp_min(1e-9)
+        height = (boxes[:, 3] - boxes[:, 1]).clamp_min(1e-9)
+        ratio = torch.maximum(width, height) / torch.minimum(width, height)
+        emphasis = 1 + self.elongation_gain * torch.log(ratio / self.elongation_threshold).clamp_min(0)
+        normalization = (weight.flatten() * emphasis).sum() / weight.sum().clamp_min(1e-9)
+        return weight * (emphasis / normalization).unsqueeze(1)
 
     def forward(
         self,
@@ -129,7 +148,7 @@ class BboxLoss(nn.Module):
         stride: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Compute IoU and DFL losses for bounding boxes."""
-        weight = target_scores[fg_mask].sum(-1, keepdim=True)
+        weight = self.regression_weight(target_bboxes, target_scores, fg_mask)
         iou = bbox_iou(pred_bboxes[fg_mask], target_bboxes[fg_mask], xywh=False, CIoU=True)
         loss_iou = ((1.0 - iou) * weight).sum() / target_scores_sum
 
@@ -372,7 +391,11 @@ class v8DetectionLoss:
             stride=self.stride.tolist(),
             topk2=tal_topk2,
         )
-        self.bbox_loss = BboxLoss(m.reg_max).to(device)
+        self.bbox_loss = BboxLoss(
+            m.reg_max,
+            elongation_gain=float(getattr(h, "elongation_gain", 0.0)),
+            elongation_threshold=float(getattr(h, "elongation_threshold", 4.0)),
+        ).to(device)
         self.proj = torch.arange(m.reg_max, dtype=torch.float, device=device)
 
     def classification_loss(self, pred_scores: torch.Tensor, target_scores: torch.Tensor) -> torch.Tensor:
