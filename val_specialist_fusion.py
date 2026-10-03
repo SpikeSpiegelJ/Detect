@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+import json
 from pathlib import Path
+from time import perf_counter
 
 import torch
 
@@ -70,22 +72,19 @@ def parse_args():
     parser.add_argument("--split", choices=("val", "test"), default="val")
     parser.add_argument("--imgsz", type=int, default=1280)
     parser.add_argument("--batch", type=int, default=2)
-    parser.add_argument("--iou", type=float, default=0.50)
-    parser.add_argument("--specialist-weight", type=float, default=1.0)
+    parser.add_argument("--iou", type=float, nargs="+", default=[0.50])
+    parser.add_argument("--specialist-weight", type=float, nargs="+", default=[1.0])
+    parser.add_argument("--project", type=Path, default=ROOT / "runs" / "val")
+    parser.add_argument("--output", type=Path, help="Optional JSON summary for all evaluated settings.")
+    parser.add_argument("--no-plots", action="store_false", dest="plots", help="Skip validation plots.")
+    parser.set_defaults(plots=True)
     return parser.parse_args()
 
 
-def main():
-    args = parse_args()
-    paths = [path.resolve() for path in [*args.general, args.specialist, args.data]]
-    for path in paths:
-        if not path.is_file():
-            raise FileNotFoundError(path)
-    if args.specialist_weight <= 0:
-        raise ValueError("--specialist-weight must be positive")
-
+def load_general_ensemble(general_paths: list[Path]) -> Ensemble:
+    """Load compatible general detectors into one reusable ensemble."""
     general = Ensemble()
-    for path in args.general:
+    for path in general_paths:
         member = YOLO(path.resolve()).model
         member.end2end = False
         if general and member.names != general.names:
@@ -95,14 +94,25 @@ def main():
     general.stride = general[0].stride
     general.yaml = general[0].yaml
     general.end2end = False
-    specialist = YOLO(args.specialist.resolve()).model
+    return general
+
+
+def load_models(general_paths: list[Path], specialist_path: Path) -> tuple[Ensemble, torch.nn.Module]:
+    """Load the general ensemble and two-class specialist once for a validation sweep."""
+    general = load_general_ensemble(general_paths)
+    specialist = YOLO(specialist_path.resolve()).model
     specialist.end2end = False
-    model = SpecialistFusion(general, specialist, args.specialist_weight)
+    return general, specialist
+
+
+def validate_setting(args, general: Ensemble, specialist: torch.nn.Module, weight: float, iou: float) -> dict:
+    """Validate one specialist-weight and NMS-IoU setting and return machine-readable metrics."""
+    model = SpecialistFusion(general, specialist, weight)
 
     device = 0 if torch.cuda.is_available() else "cpu"
     run_name = (
-        f"v14_specialist_fusion_w{str(args.specialist_weight).replace('.', 'p')}_"
-        f"tta_general_single_specialist_iou{str(args.iou).replace('.', 'p')}_{args.split}"
+        f"v14_specialist_fusion_w{str(weight).replace('.', 'p')}_"
+        f"tta_general_single_specialist_iou{str(iou).replace('.', 'p')}_{args.split}"
     )
     validator = DetectionValidator(
         args={
@@ -115,14 +125,75 @@ def main():
             "workers": 4 if device != "cpu" else 0,
             "end2end": False,
             "augment": True,
-            "iou": args.iou,
-            "plots": True,
+            "iou": iou,
+            "plots": args.plots,
         },
-        save_dir=ROOT / "runs" / "val" / run_name,
+        save_dir=args.project.resolve() / run_name,
     )
+    started = perf_counter()
     validator(model=model)
     metrics = validator.metrics
-    print(f"mAP50={metrics.box.map50:.4f}, mAP50-95={metrics.box.map:.4f}")
+    per_class = []
+    for result_index, class_id in enumerate(metrics.ap_class_index):
+        precision, recall, map50, map50_95 = metrics.class_result(result_index)
+        per_class.append(
+            {
+                "class_id": int(class_id),
+                "class_name": metrics.names[int(class_id)],
+                "instances": int(metrics.nt_per_class[int(class_id)]),
+                "precision": float(precision),
+                "recall": float(recall),
+                "mAP50": float(map50),
+                "mAP50-95": float(map50_95),
+            }
+        )
+    result = {
+        "specialist_weight": weight,
+        "nms_iou": iou,
+        "split": args.split,
+        "images": int(validator.seen),
+        "elapsed_seconds": perf_counter() - started,
+        "metrics": {key: float(value) for key, value in metrics.results_dict.items()},
+        "speed_ms_per_image": {key: float(value) for key, value in metrics.speed.items()},
+        "per_class": per_class,
+        "save_dir": str(validator.save_dir),
+    }
+    print(
+        f"weight={weight:g}, iou={iou:g}, mAP50={metrics.box.map50:.4f}, "
+        f"mAP50-95={metrics.box.map:.4f}"
+    )
+    return result
+
+
+def main():
+    args = parse_args()
+    paths = [path.resolve() for path in [*args.general, args.specialist, args.data]]
+    for path in paths:
+        if not path.is_file():
+            raise FileNotFoundError(path)
+    if any(weight < 0 for weight in args.specialist_weight):
+        raise ValueError("--specialist-weight must be non-negative")
+    if any(not 0 < iou <= 1 for iou in args.iou):
+        raise ValueError("--iou must be in (0, 1]")
+
+    general, specialist = load_models(args.general, args.specialist)
+    results = [
+        validate_setting(args, general, specialist, weight, iou)
+        for weight in args.specialist_weight
+        for iou in args.iou
+    ]
+    if args.output:
+        output = args.output.resolve()
+        output.parent.mkdir(parents=True, exist_ok=True)
+        report = {
+            "general_weights": [str(path.resolve()) for path in args.general],
+            "specialist_weight_file": str(args.specialist.resolve()),
+            "data": str(args.data.resolve()),
+            "imgsz": args.imgsz,
+            "batch": args.batch,
+            "results": results,
+        }
+        output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

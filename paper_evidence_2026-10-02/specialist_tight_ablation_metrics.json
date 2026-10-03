@@ -1,0 +1,85 @@
+{
+  "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_context_confuser.yaml",
+  "imgsz": 1280,
+  "batch": 2,
+  "variants": {
+    "full_positive_tight": [
+      {
+        "split": "val",
+        "weight": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\runs\\train\\paper_specialist_ablation_full_positive_tight_v9seed0\\weights\\best.pt",
+        "weight_sha256": "94f1a9615ddafeb52c18133c0ff21fadc392b36105e916d3fdd926c7dac360b2",
+        "metrics": {
+          "metrics/precision(B)": 0.9123575397643187,
+          "metrics/recall(B)": 0.8083224066363327,
+          "metrics/mAP50(B)": 0.8808909568923134,
+          "metrics/mAP50-95(B)": 0.5919586794613436,
+          "fitness": 0.5919586794613436
+        },
+        "speed_ms_per_image": {
+          "preprocess": 2.1887658000632655,
+          "inference": 19.308339599956525,
+          "loss": 0.002161599950341042,
+          "postprocess": 0.6241095999939716
+        },
+        "per_class": [
+          {
+            "class_id": 0,
+            "class_name": "cut",
+            "instances": 229,
+            "precision": 0.9693291671370998,
+            "recall": 0.8820960698689956,
+            "mAP50": 0.9325918417723879,
+            "mAP50-95": 0.6571029461495748
+          },
+          {
+            "class_id": 1,
+            "class_name": "Feeder_antenna",
+            "instances": 153,
+            "precision": 0.8553859123915376,
+            "recall": 0.7345487434036698,
+            "mAP50": 0.829190072012239,
+            "mAP50-95": 0.5268144127731124
+          }
+        ]
+      },
+      {
+        "split": "test",
+        "weight": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\runs\\train\\paper_specialist_ablation_full_positive_tight_v9seed0\\weights\\best.pt",
+        "weight_sha256": "94f1a9615ddafeb52c18133c0ff21fadc392b36105e916d3fdd926c7dac360b2",
+        "metrics": {
+          "metrics/precision(B)": 0.7954250014711564,
+          "metrics/recall(B)": 0.6560736674971167,
+          "metrics/mAP50(B)": 0.7316962125629896,
+          "metrics/mAP50-95(B)": 0.4470646110296571,
+          "fitness": 0.4470646110296571
+        },
+        "speed_ms_per_image": {
+          "preprocess": 2.184635887839657,
+          "inference": 18.53358037384237,
+          "loss": 0.002160934605156985,
+          "postprocess": 0.6047891588907723
+        },
+        "per_class": [
+          {
+            "class_id": 0,
+            "class_name": "cut",
+            "instances": 121,
+            "precision": 0.8056377612936465,
+            "recall": 0.6528925619834711,
+            "mAP50": 0.717218290586866,
+            "mAP50-95": 0.46382909355575236
+          },
+          {
+            "class_id": 1,
+            "class_name": "Feeder_antenna",
+            "instances": 122,
+            "precision": 0.7852122416486661,
+            "recall": 0.6592547730107623,
+            "mAP50": 0.7461741345391132,
+            "mAP50-95": 0.43030012850356175
+          }
+        ]
+      }
+    ]
+  }
+}

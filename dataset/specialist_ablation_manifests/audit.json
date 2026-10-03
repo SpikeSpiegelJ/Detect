@@ -1,0 +1,41 @@
+{
+  "source_data": "E:\\Python-program\\Detect\\ultralytics\\dataset\\data_repartition_v14_cut_feeder_specialist.yaml",
+  "source_root": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v14_cut_feeder_specialist",
+  "groups": {
+    "positive_full_images": 1002,
+    "context_images": 1002,
+    "confuser_negative_images": 752
+  },
+  "negative_definition": "empty specialist labels in the materialized train split",
+  "variants": {
+    "full_positive": {
+      "images": 1002,
+      "manifest": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive.txt",
+      "manifest_sha256": "05a8bdee99e2aa214bccd05d48f0067977c36a0607233e897d4de076aa2bf1b1",
+      "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive.yaml",
+      "data_sha256": "d6bacb8cb2ac564236fd5ab305e0e42b25fb73db36ec46eb03994374339f74eb"
+    },
+    "full_positive_confuser": {
+      "images": 1754,
+      "manifest": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive_confuser.txt",
+      "manifest_sha256": "1d3cebf381e0b526961be243a1c85eea17cdbd80d1e7561eeaf624d231f4024a",
+      "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive_confuser.yaml",
+      "data_sha256": "e76554c3178483ca5d41153d861ff92acdd6d38c5e125ba50e95dc2a6ff1bbf0"
+    },
+    "full_positive_context": {
+      "images": 2004,
+      "manifest": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive_context.txt",
+      "manifest_sha256": "91e193c3f6e88e7328fc078f70a253587e82ace3c3fed59ac3e0952edb2194e1",
+      "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive_context.yaml",
+      "data_sha256": "277feb3459f2cbc905bb19bec77ef345a60602434a775662101be8dbf9b0b7c1"
+    },
+    "full_context_confuser": {
+      "images": 2756,
+      "manifest": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_context_confuser.txt",
+      "manifest_sha256": "76ec352f099c482a73933e26232f889a96846dae0a98dcb33c068c9133467431",
+      "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_context_confuser.yaml",
+      "data_sha256": "11134d35cf2aebd2def3ee439e9ff44c241f0ac3eab12a7018abe4a7efa1c4c1"
+    }
+  },
+  "validation_and_test_unchanged": true
+}

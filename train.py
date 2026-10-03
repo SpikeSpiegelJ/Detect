@@ -258,6 +258,7 @@ PRESETS["v13_cut_feeder_hard_yolo26s_ft"] = {
 PRESETS["v14_cut_feeder_specialist"] = {
     **PRESETS["v11_target_crop_yolo26s_ft"],
     "model": V9_YOLO26S_WEIGHTS,
+    "weights": None,
     "data": V14_CUT_FEEDER_SPECIALIST_DATA,
     "name": "yolo26s_v14_cut_feeder_specialist",
     "epochs": 40,

@@ -1,0 +1,8 @@
+path: E:/Python-program/Detect/ultralytics/dataset/repartition_v14_cut_feeder_specialist
+train: E:/Python-program/Detect/ultralytics-sci-implementation/dataset/specialist_ablation_manifests/full_context_confuser.txt
+val: E:/Python-program/Detect/ultralytics/dataset/repartition_v14_cut_feeder_specialist/images/val
+test: E:/Python-program/Detect/ultralytics/dataset/repartition_v14_cut_feeder_specialist/images/test
+nc: 2
+names:
+  0: cut
+  1: Feeder_antenna

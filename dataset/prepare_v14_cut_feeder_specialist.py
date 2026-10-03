@@ -112,7 +112,8 @@ def main():
         "val": materialize(val, output, "val"),
         "test": materialize(test, output, "test"),
         "positive_full_images": len(positives),
-        "hard_negative_images": len(selected_negatives),
+        "confuser_negative_images": len(selected_negatives),
+        "negative_selection": "fixed-seed random sample without specialist targets and with classes 1, 3, or 4",
     }
     descriptor = {
         "path": output.as_posix(),
