@@ -23,8 +23,7 @@ V11_TARGET_CROP_DATA = ROOT / "dataset" / "data_repartition_v11_target_crop_9c.y
 V13_CUT_FEEDER_HARD_DATA = ROOT / "dataset" / "data_repartition_v13_cut_feeder_hard_9c.yaml"
 V14_CUT_FEEDER_SPECIALIST_DATA = ROOT / "dataset" / "data_repartition_v14_cut_feeder_specialist.yaml"
 V15_OOF_REVIEWED_DATA = ROOT / "dataset" / "data_repartition_v15_oof_reviewed_9c.yaml"
-V16_ANNOTATION_CONTROL_DATA = ROOT / "dataset" / "data_repartition_v16_annotation_control_9c.yaml"
-V16_ANNOTATION_CLEAN_DATA = ROOT / "dataset" / "data_repartition_v16_annotation_clean_9c.yaml"
+V15_ANNOTATION_CONTROL_DATA = ROOT / "dataset" / "data_repartition_v15_annotation_control_clean_val_9c.yaml"
 V8_REVIEWED_HARD_DATA = ROOT / "dataset" / "data_repartition_v8_reviewed_hard_2x.yaml"
 FOCUS_HARDNEG_DATA = ROOT / "dataset" / "data_repartition_v6_focus_hardneg.yaml"
 YOLO26S_WEIGHTS = ROOT / "yolo26s.pt"
@@ -301,25 +300,9 @@ PRESETS["paper_p2_baseline"] = {
     "name": "paper_yolo26s_p2_baseline_seed0",
 }
 PRESETS["paper_annotation_control"] = {
-    **PRESETS["yolo26s"],
-    "data": V16_ANNOTATION_CONTROL_DATA,
-    "name": "paper_yolo26s_annotation_control_seed0",
-    "epochs": 30,
-    "patience": 10,
-    "lr0": 0.0001,
-    "lrf": 0.1,
-    "cos_lr": True,
-    "dfl": 1.5,
-    "mosaic": 0.0,
-    "close_mosaic": 0,
-    "translate": 0.02,
-    "scale": 0.10,
-    "save_period": -1,
-}
-PRESETS["paper_annotation_clean"] = {
-    **PRESETS["paper_annotation_control"],
-    "data": V16_ANNOTATION_CLEAN_DATA,
-    "name": "paper_yolo26s_annotation_clean_seed0",
+    **PRESETS["v15_oof_reviewed"],
+    "data": V15_ANNOTATION_CONTROL_DATA,
+    "name": "paper_yolo26s_v15_annotation_control_seed0",
 }
 
 
