@@ -68,6 +68,61 @@ class FeederRelationCalibration(torch.nn.Module):
         return self.calibrate(prediction), None
 
 
+class SpatialFeederRelationCalibration(FeederRelationCalibration):
+    """Calibrate each feeder candidate from its proximity to endpoint-device candidates."""
+
+    def __init__(self, general: torch.nn.Module, strength: float = 0.0, temperature: float = 0.05, topk: int = 20):
+        super().__init__(general, strength)
+        if temperature <= 0:
+            raise ValueError("temperature must be positive")
+        if topk <= 0:
+            raise ValueError("topk must be positive")
+        self.temperature = temperature
+        self.topk = topk
+
+    def nearby_support(
+        self, boxes: torch.Tensor, anchor_scores: torch.Tensor, image_size: tuple[int, int]
+    ) -> torch.Tensor:
+        """Return distance-decayed support from the strongest endpoint candidates."""
+        count = min(self.topk, anchor_scores.shape[1])
+        scores, indices = anchor_scores.topk(count, dim=1)
+        anchors = boxes.gather(1, indices.unsqueeze(-1).expand(-1, -1, 4))
+        feeder, anchors = boxes.unsqueeze(2), anchors.unsqueeze(1)
+        dx = (
+            (feeder[..., 0] - anchors[..., 0]).abs() - (feeder[..., 2] + anchors[..., 2]) / 2
+        ).clamp_min(0)
+        dy = (
+            (feeder[..., 1] - anchors[..., 1]).abs() - (feeder[..., 3] + anchors[..., 3]) / 2
+        ).clamp_min(0)
+        height, width = image_size
+        distance = torch.sqrt((dx / width).square() + (dy / height).square())
+        return (scores.unsqueeze(1) * torch.exp(-distance / self.temperature)).amax(dim=2)
+
+    def calibrate(self, prediction: torch.Tensor, image_size: tuple[int, int]) -> torch.Tensor:
+        """Apply candidate-specific gains from nearby endpoint predictions."""
+        if self.strength == 0:
+            return prediction
+        prediction = prediction.clone()
+        boxes, scores = prediction[:, :4].transpose(1, 2), prediction[:, 4:]
+        rru_support = self.nearby_support(boxes, scores[:, self.rru_id], image_size)
+        antenna_support = self.nearby_support(boxes, scores[:, self.antenna_id], image_size)
+        evidence = (rru_support - antenna_support) / (rru_support + antenna_support).clamp_min(1e-6)
+        scores[:, self.feeder_rru_id] = (
+            scores[:, self.feeder_rru_id] * torch.exp(self.strength * evidence)
+        ).clamp_max(1)
+        scores[:, self.feeder_antenna_id] = (
+            scores[:, self.feeder_antenna_id] * torch.exp(-self.strength * evidence)
+        ).clamp_max(1)
+        return prediction
+
+    def forward(self, x, augment=False, profile=False, visualize=False, embed=None):
+        """Run general TTA and candidate-level spatial calibration before NMS."""
+        prediction = self.predictions(
+            self.general(x, augment=True, profile=profile, visualize=visualize, embed=embed)
+        )
+        return self.calibrate(prediction, x.shape[-2:]), None
+
+
 def parse_args():
     """Parse relation-calibration validation settings."""
     parser = ArgumentParser(description=__doc__)
@@ -78,6 +133,9 @@ def parse_args():
     parser.add_argument("--batch", type=int, default=2)
     parser.add_argument("--iou", type=float, default=0.6)
     parser.add_argument("--strength", type=float, nargs="+", default=[0.0, 0.25, 0.5, 0.75, 1.0])
+    parser.add_argument("--relation-mode", choices=("global", "spatial"), default="global")
+    parser.add_argument("--temperature", type=float, default=0.05)
+    parser.add_argument("--topk", type=int, default=20)
     parser.add_argument("--project", type=Path, default=ROOT / "runs" / "val" / "feeder_relation")
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
@@ -85,7 +143,11 @@ def parse_args():
 
 def validate_setting(args, general, strength: float) -> dict:
     """Validate one frozen relation strength and return stable metrics."""
-    model = FeederRelationCalibration(general, strength)
+    model = (
+        FeederRelationCalibration(general, strength)
+        if args.relation_mode == "global"
+        else SpatialFeederRelationCalibration(general, strength, args.temperature, args.topk)
+    )
     device = 0 if torch.cuda.is_available() else "cpu"
     validator = DetectionValidator(
         args={
@@ -101,7 +163,8 @@ def validate_setting(args, general, strength: float) -> dict:
             "iou": args.iou,
             "plots": False,
         },
-        save_dir=args.project.resolve() / f"strength_{str(strength).replace('.', 'p')}_{args.split}",
+        save_dir=args.project.resolve()
+        / f"{args.relation_mode}_strength_{str(strength).replace('.', 'p')}_{args.split}",
     )
     started = perf_counter()
     validator(model=model)
@@ -144,6 +207,8 @@ def main():
         raise ValueError("--strength must be non-negative")
     if not 0 < args.iou <= 1:
         raise ValueError("--iou must be in (0, 1]")
+    if args.temperature <= 0 or args.topk <= 0:
+        raise ValueError("--temperature and --topk must be positive")
     general = load_general_ensemble(args.general)
     report = {
         "general_weights": [str(path.resolve()) for path in args.general],
@@ -152,6 +217,9 @@ def main():
         "imgsz": args.imgsz,
         "batch": args.batch,
         "nms_iou": args.iou,
+        "relation_mode": args.relation_mode,
+        "temperature": args.temperature,
+        "topk": args.topk,
         "results": [],
     }
     output = args.output.resolve()
