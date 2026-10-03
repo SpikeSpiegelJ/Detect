@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
-from collections import Counter
+from collections import Counter, defaultdict
 import csv
 import json
 from pathlib import Path
@@ -38,6 +38,7 @@ DEFAULT_WEIGHTS = (
 )
 DEFAULT_OUTPUT = PROJECT_ROOT / "runs" / "audit" / "yolo26s_v8_train_weak_class_errors"
 TARGET_CLASSES = {1: "antenna_s", 3: "Feeder_RRU", 5: "cut", 6: "Feeder_antenna"}
+FEEDER_ENDPOINTS = {"Feeder_RRU": "RRU", "Feeder_antenna": "antenna_b"}
 MISS_COLOR = (0, 150, 255)
 LOCALIZATION_COLOR = (210, 70, 180)
 
@@ -97,6 +98,47 @@ def best_candidate(indices, overlaps, confidences):
     return max(indices, key=lambda index: (float(overlaps[index]), float(confidences[index])))
 
 
+def geometry_profile(box, width, height, imgsz):
+    """Return detector-input geometry for one xyxy box."""
+    if box is None:
+        return {}
+    box_width, box_height = max(float(box[2] - box[0]), 0.0), max(float(box[3] - box[1]), 0.0)
+    scale = min(imgsz / width, imgsz / height)
+    short_side = min(box_width, box_height) * scale
+    aspect_ratio = max(box_width, box_height) / max(min(box_width, box_height), 1e-9)
+    return {
+        "gt_aspect_ratio": aspect_ratio,
+        "gt_short_side_px_at_imgsz": short_side,
+        "gt_area_fraction": box_width * box_height / (width * height),
+        "gt_elongated": aspect_ratio >= 4,
+        "gt_small_at_imgsz": box_width * box_height * scale**2 < 32**2,
+    }
+
+
+def endpoint_profile(class_name, box, gt_classes, gt_boxes, names, width, height):
+    """Describe whether the class-defining feeder endpoint is visible and nearby."""
+    endpoint_name = FEEDER_ENDPOINTS.get(class_name)
+    if endpoint_name is None:
+        return {}
+    endpoint_ids = [class_id for class_id, name in names.items() if name == endpoint_name]
+    endpoint_indices = np.flatnonzero(np.isin(gt_classes, endpoint_ids))
+    profile = {"endpoint_class": endpoint_name, "endpoint_visible": bool(len(endpoint_indices))}
+    if box is None or not len(endpoint_indices):
+        return profile
+    center = (np.asarray(box[:2]) + np.asarray(box[2:])) / 2
+    endpoint_centers = (gt_boxes[endpoint_indices, :2] + gt_boxes[endpoint_indices, 2:]) / 2
+    distances = np.linalg.norm(endpoint_centers - center, axis=1) / np.hypot(width, height)
+    profile["endpoint_min_center_distance_normalized"] = float(distances.min())
+    return profile
+
+
+def distribution_summary(values):
+    """Return compact quartiles for a numeric sequence."""
+    if not values:
+        return {}
+    return {key: float(value) for key, value in zip(("q25", "q50", "q75"), np.quantile(values, (0.25, 0.5, 0.75)))}
+
+
 def analyze_image(result, gt_classes, gt_boxes, args, names):
     """Classify missed GTs, localization errors, class confusion, and false positives."""
     predictions = result.boxes.cpu().numpy()
@@ -125,9 +167,12 @@ def analyze_image(result, gt_classes, gt_boxes, args, names):
                 {
                     "class": names[class_id],
                     "error_type": "localization",
+                    "origin": "ground_truth",
                     "confidence": float(confidences[same_index]),
                     "best_iou": same_iou,
+                    "ground_truth_class": names[class_id],
                     "predicted_class": names[class_id],
+                    "gt_index": int(gt_index),
                     "gt_box": gt_boxes[gt_index],
                     "pred_box": pred_boxes[same_index],
                 }
@@ -145,9 +190,12 @@ def analyze_image(result, gt_classes, gt_boxes, args, names):
                 {
                     "class": names[class_id],
                     "error_type": "class_confusion",
+                    "origin": "ground_truth",
                     "confidence": float(confidences[other_index]),
                     "best_iou": other_iou,
+                    "ground_truth_class": names[class_id],
                     "predicted_class": names[int(pred_classes[other_index])],
+                    "gt_index": int(gt_index),
                     "gt_box": gt_boxes[gt_index],
                     "pred_box": pred_boxes[other_index],
                 }
@@ -157,9 +205,12 @@ def analyze_image(result, gt_classes, gt_boxes, args, names):
                 {
                     "class": names[class_id],
                     "error_type": "missed_gt",
+                    "origin": "ground_truth",
                     "confidence": float(confidences[same_index]) if same_index is not None else 0.0,
                     "best_iou": same_iou,
+                    "ground_truth_class": names[class_id],
                     "predicted_class": "",
+                    "gt_index": int(gt_index),
                     "gt_box": gt_boxes[gt_index],
                     "pred_box": None,
                 }
@@ -186,9 +237,12 @@ def analyze_image(result, gt_classes, gt_boxes, args, names):
             {
                 "class": names[class_id],
                 "error_type": error_type,
+                "origin": "prediction",
                 "confidence": float(confidences[pred_index]),
                 "best_iou": maximum_iou,
+                "ground_truth_class": actual_class,
                 "predicted_class": actual_class,
+                "gt_index": best_gt if error_type != "false_positive" else None,
                 "gt_box": gt_boxes[best_gt] if error_type != "false_positive" else None,
                 "pred_box": pred_boxes[pred_index],
             }
@@ -244,7 +298,17 @@ def main():
         verbose=False,
     )
 
-    rows, tiles, error_counts, visited = [], [], Counter(), set()
+    rows, tiles, error_counts, gt_error_counts, geometry_counts, endpoint_counts, target_gt_counts, visited = (
+        [],
+        [],
+        Counter(),
+        Counter(),
+        Counter(),
+        Counter(),
+        Counter(),
+        set(),
+    )
+    target_geometry, error_geometry = defaultdict(lambda: defaultdict(list)), defaultdict(lambda: defaultdict(list))
     for result in results:
         image_path = Path(result.path).resolve()
         if image_path not in images or image_path in visited:
@@ -253,6 +317,18 @@ def main():
         height, width = result.orig_shape
         gt_classes, gt_boxes_n = load_labels(label_path(image_path))
         gt_boxes = xywhn_to_xyxy(gt_boxes_n, width, height)
+        for gt_class, gt_box in zip(gt_classes, gt_boxes):
+            class_name = names[int(gt_class)]
+            if int(gt_class) not in TARGET_CLASSES:
+                continue
+            geometry = geometry_profile(gt_box, width, height, args.imgsz)
+            endpoint = endpoint_profile(class_name, gt_box, gt_classes, gt_boxes, names, width, height)
+            target_gt_counts[(class_name, "all")] += 1
+            target_gt_counts[(class_name, "elongated" if geometry["gt_elongated"] else "not_elongated")] += 1
+            target_geometry[class_name]["short_side_px_at_imgsz"].append(geometry["gt_short_side_px_at_imgsz"])
+            target_geometry[class_name]["aspect_ratio"].append(geometry["gt_aspect_ratio"])
+            if endpoint:
+                target_gt_counts[(class_name, f"endpoint_visible={endpoint['endpoint_visible']}")] += 1
         errors = analyze_image(result, gt_classes, gt_boxes, args, names)
         if not errors:
             continue
@@ -268,6 +344,28 @@ def main():
         tiles.append(make_tile(saved, f"{review_index:03d}  {caption}"))
         for error_index, error in enumerate(errors, 1):
             error_counts[(error["class"], error["error_type"])] += 1
+            if error["origin"] == "ground_truth":
+                gt_error_counts[(error["ground_truth_class"], error["error_type"])] += 1
+            geometry = geometry_profile(error["gt_box"], width, height, args.imgsz)
+            profile_class = error["ground_truth_class"] or error["class"]
+            endpoint = endpoint_profile(
+                profile_class,
+                error["gt_box"] if error["gt_box"] is not None else error["pred_box"],
+                gt_classes,
+                gt_boxes,
+                names,
+                width,
+                height,
+            )
+            if geometry:
+                geometry_counts[(profile_class, error["error_type"], geometry["gt_elongated"])] += 1
+                if error["origin"] == "ground_truth":
+                    error_geometry[profile_class]["short_side_px_at_imgsz"].append(
+                        geometry["gt_short_side_px_at_imgsz"]
+                    )
+                    error_geometry[profile_class]["aspect_ratio"].append(geometry["gt_aspect_ratio"])
+            if endpoint:
+                endpoint_counts[(profile_class, error["error_type"], endpoint["endpoint_visible"])] += 1
             rows.append(
                 {
                     "index": len(rows) + 1,
@@ -276,9 +374,25 @@ def main():
                     "error_index": error_index,
                     "class": error["class"],
                     "error_type": error["error_type"],
+                    "origin": error["origin"],
                     "confidence": f"{error['confidence']:.4f}",
                     "best_iou": f"{error['best_iou']:.4f}",
+                    "ground_truth_class": error["ground_truth_class"],
                     "predicted_class": error["predicted_class"],
+                    "gt_aspect_ratio": f"{geometry.get('gt_aspect_ratio', ''):.4f}" if geometry else "",
+                    "gt_short_side_px_at_imgsz": (
+                        f"{geometry.get('gt_short_side_px_at_imgsz', ''):.2f}" if geometry else ""
+                    ),
+                    "gt_area_fraction": f"{geometry.get('gt_area_fraction', ''):.8f}" if geometry else "",
+                    "gt_elongated": geometry.get("gt_elongated", ""),
+                    "gt_small_at_imgsz": geometry.get("gt_small_at_imgsz", ""),
+                    "endpoint_class": endpoint.get("endpoint_class", ""),
+                    "endpoint_visible": endpoint.get("endpoint_visible", ""),
+                    "endpoint_min_center_distance_normalized": (
+                        f"{endpoint['endpoint_min_center_distance_normalized']:.4f}"
+                        if "endpoint_min_center_distance_normalized" in endpoint
+                        else ""
+                    ),
                     "decision": "TODO",
                     "correct_class": "",
                     "notes": "",
@@ -302,6 +416,38 @@ def main():
         "review_images": len(tiles),
         "review_rows": len(rows),
         "errors": {f"{name}/{kind}": count for (name, kind), count in sorted(error_counts.items())},
+        "ground_truth_errors": {
+            f"{name}/{kind}": count for (name, kind), count in sorted(gt_error_counts.items())
+        },
+        "error_geometry": {
+            f"{name}/{kind}/elongated={elongated}": count
+            for (name, kind, elongated), count in sorted(geometry_counts.items())
+        },
+        "error_endpoint_visibility": {
+            f"{name}/{kind}/endpoint_visible={visible}": count
+            for (name, kind, visible), count in sorted(endpoint_counts.items())
+        },
+        "target_gt_profiles": {
+            f"{name}/{profile}": count for (name, profile), count in sorted(target_gt_counts.items())
+        },
+        "ground_truth_error_rates": {
+            name: {
+                "errors": sum(count for (error_name, _), count in gt_error_counts.items() if error_name == name),
+                "targets": target_gt_counts[(name, "all")],
+                "rate": sum(count for (error_name, _), count in gt_error_counts.items() if error_name == name)
+                / target_gt_counts[(name, "all")],
+            }
+            for name in TARGET_CLASSES.values()
+        },
+        "geometry_distributions": {
+            name: {
+                "all_targets": {metric: distribution_summary(values) for metric, values in metrics.items()},
+                "ground_truth_errors": {
+                    metric: distribution_summary(error_geometry[name][metric]) for metric in metrics
+                },
+            }
+            for name, metrics in target_geometry.items()
+        },
         "parameters": {
             "candidate_conf": args.candidate_conf,
             "false_positive_conf": args.false_positive_conf,

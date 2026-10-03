@@ -1,0 +1,49 @@
+{
+  "protocol": {
+    "split": "val",
+    "images": 500,
+    "imgsz": 1280,
+    "candidate_conf": 0.01,
+    "false_positive_conf": 0.4,
+    "localization_iou": 0.1,
+    "match_iou": 0.5,
+    "weights_sha256": "fa1ae0e97f34c1e996ce53451403ed90877c31c5c2dfba5cf4beb1a72b49b27b"
+  },
+  "ground_truth_error_rates": {
+    "antenna_s": {"errors": 7, "targets": 127, "rate": 0.05511811023622047},
+    "Feeder_RRU": {"errors": 23, "targets": 301, "rate": 0.07641196013289037},
+    "cut": {"errors": 12, "targets": 229, "rate": 0.05240174672489083},
+    "Feeder_antenna": {"errors": 7, "targets": 153, "rate": 0.0457516339869281}
+  },
+  "ground_truth_errors": {
+    "Feeder_RRU/localization": 11,
+    "Feeder_RRU/missed_gt": 12,
+    "Feeder_antenna/localization": 4,
+    "Feeder_antenna/missed_gt": 3,
+    "antenna_s/localization": 6,
+    "antenna_s/missed_gt": 1,
+    "cut/class_confusion": 1,
+    "cut/localization": 3,
+    "cut/missed_gt": 8
+  },
+  "short_side_median_px_at_1280": {
+    "antenna_s": {"all_targets": 121.1520673643868, "errors": 118.16449652777777},
+    "Feeder_RRU": {"all_targets": 164.9385308159722, "errors": 78.48063352977668},
+    "cut": {"all_targets": 136.40312962278105, "errors": 77.99917495594315},
+    "Feeder_antenna": {"all_targets": 123.13858895931605, "errors": 156.1162109375}
+  },
+  "aspect_ratio_median": {
+    "antenna_s": {"all_targets": 1.1772145923350268, "errors": 1.2666683407778967},
+    "Feeder_RRU": {"all_targets": 1.5730395724970467, "errors": 2.0149307451516685},
+    "cut": {"all_targets": 1.6194023755732547, "errors": 1.919788243596917},
+    "Feeder_antenna": {"all_targets": 3.345093639807713, "errors": 2.019131311741234}
+  },
+  "elongated_error_counts": {
+    "Feeder_RRU": {"errors": 4, "targets": 9},
+    "Feeder_antenna": {"errors": 2, "targets": 70}
+  },
+  "endpoint_visibility": {
+    "Feeder_RRU": {"error_targets_visible": 22, "error_targets_total": 23, "all_targets_visible": 293, "all_targets_total": 301},
+    "Feeder_antenna": {"error_targets_visible": 6, "error_targets_total": 7, "all_targets_visible": 152, "all_targets_total": 153}
+  }
+}
