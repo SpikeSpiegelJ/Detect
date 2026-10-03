@@ -292,6 +292,12 @@ PRESETS["paper_elongation_loss"] = {
     "name": "paper_yolo26s_elongation_loss_seed0",
     "elongation_gain": 1.0,
 }
+PRESETS["paper_p2_baseline"] = {
+    **PRESETS["paper_elongation_control"],
+    "model": YOLO26S_P2_O2M_CFG,
+    "weights": V9_YOLO26S_WEIGHTS,
+    "name": "paper_yolo26s_p2_baseline_seed0",
+}
 
 
 def build_model(args):
@@ -308,7 +314,7 @@ def build_model(args):
         # Model.train rebuilds from YAML and transfers this initialized model only when ckpt is set.
         model.ckpt = {"model": target}
         print("Transferred all 28 V6 layers; only P2 CBAM is newly initialized.")
-    elif args.preset == "v8_yolo26s_p2_o2m_ft":
+    elif args.preset in {"v8_yolo26s_p2_o2m_ft", "paper_p2_baseline"}:
         source = YOLO(args.weights or V8_RELABEL_WEIGHTS).model.float()
         target = model.model
         assert len(source.model) == 24 and len(target.model) == 30

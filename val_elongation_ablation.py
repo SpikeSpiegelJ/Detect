@@ -1,5 +1,5 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
-"""Evaluate control and elongation-aware checkpoints with an identical protocol."""
+"""Evaluate named frozen checkpoints with an identical protocol."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from val_specialist_ablation import metrics_record
 ROOT = Path(__file__).resolve().parent
 DEFAULT_RUNS = ROOT / "runs" / "train"
 DEFAULT_DATA = ROOT / "dataset" / "data_repartition_v13_cut_feeder_hard_corrected_9c.yaml"
-VARIANTS = {
+DEFAULT_VARIANTS = {
     "control": "paper_yolo26s_elongation_control_seed0",
     "elongation_loss": "paper_yolo26s_elongation_loss_seed0",
 }
@@ -31,6 +31,12 @@ def parse_args():
     parser.add_argument("--imgsz", type=int, default=1280)
     parser.add_argument("--batch", type=int, default=2)
     parser.add_argument("--iou", type=float, default=0.7)
+    parser.add_argument(
+        "--variant",
+        action="append",
+        metavar="LABEL=RUN_NAME",
+        help="Named run under --runs; repeat for a custom comparison.",
+    )
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -51,7 +57,14 @@ def main():
         "variants": {},
     }
     device = 0 if torch.cuda.is_available() else "cpu"
-    for variant, run_name in VARIANTS.items():
+    variants = DEFAULT_VARIANTS
+    if args.variant:
+        if any("=" not in item for item in args.variant):
+            raise ValueError("Each --variant must use LABEL=RUN_NAME")
+        variants = dict(item.split("=", 1) for item in args.variant)
+        if any(not label or not run_name for label, run_name in variants.items()):
+            raise ValueError("Variant labels and run names must not be empty")
+    for variant, run_name in variants.items():
         weight = args.runs.resolve() / run_name / "weights" / "best.pt"
         if not weight.is_file():
             raise FileNotFoundError(weight)
@@ -68,7 +81,7 @@ def main():
                 iou=args.iou,
                 augment=False,
                 plots=False,
-                project=ROOT / "runs" / "val" / "elongation_ablation_2026-10-03",
+                project=ROOT / "runs" / "val" / "paired_ablation_2026-10-03",
                 name=f"{variant}_{split}",
                 verbose=False,
             )
