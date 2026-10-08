@@ -3,26 +3,22 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from collections import Counter, defaultdict
 import csv
 import json
-from pathlib import Path
 import sys
+from argparse import ArgumentParser
+from collections import Counter, defaultdict
+from pathlib import Path
 
 import cv2
 import numpy as np
 import yaml
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from ultralytics import YOLO  # noqa: E402
-from ultralytics.data.loaders import LoadImagesAndVideos, SourceTypes  # noqa: E402
-
-from build_focus_hardneg_manifest import box_iou, label_path, load_labels, xywhn_to_xyxy  # noqa: E402
-from review_feeder_hard_negatives import (  # noqa: E402
+from build_focus_hardneg_manifest import box_iou, label_path, load_labels, xywhn_to_xyxy
+from review_feeder_hard_negatives import (
     GT_COLOR,
     PRED_COLOR,
     draw_box,
@@ -31,11 +27,11 @@ from review_feeder_hard_negatives import (  # noqa: E402
     save_contact_sheets,
 )
 
+from ultralytics import YOLO
+from ultralytics.data.loaders import LoadImagesAndVideos, SourceTypes
 
 DEFAULT_DATA = PROJECT_ROOT / "dataset" / "data_repartition_v8_dataset9_9c.yaml"
-DEFAULT_WEIGHTS = (
-    PROJECT_ROOT / "runs" / "train" / "yolo26s_v8_dataset9_relabel_ft" / "weights" / "best.pt"
-)
+DEFAULT_WEIGHTS = PROJECT_ROOT / "runs" / "train" / "yolo26s_v8_dataset9_relabel_ft" / "weights" / "best.pt"
 DEFAULT_OUTPUT = PROJECT_ROOT / "runs" / "audit" / "yolo26s_v8_train_weak_class_errors"
 TARGET_CLASSES = {1: "antenna_s", 3: "Feeder_RRU", 5: "cut", 6: "Feeder_antenna"}
 FEEDER_ENDPOINTS = {"Feeder_RRU": "RRU", "Feeder_antenna": "antenna_b"}
@@ -49,6 +45,7 @@ def parse_args():
     parser.add_argument("--data", type=Path, default=DEFAULT_DATA)
     parser.add_argument("--weights", type=Path, default=DEFAULT_WEIGHTS)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--summary-output", type=Path, help="Optional second path for the machine-readable summary")
     parser.add_argument("--split", choices=("train", "val", "test"), default="train")
     parser.add_argument("--imgsz", type=int, default=1280)
     parser.add_argument("--batch", type=int, default=4)
@@ -58,6 +55,7 @@ def parse_args():
     parser.add_argument("--match-iou", type=float, default=0.5)
     parser.add_argument("--localization-iou", type=float, default=0.1)
     parser.add_argument("--confusion-iou", type=float, default=0.3)
+    parser.add_argument("--nwd-threshold", type=float, default=0.04)
     parser.add_argument("--max-side", type=int, default=1600)
     parser.add_argument("--sheet-columns", type=int, default=3)
     parser.add_argument("--sheet-rows", type=int, default=3)
@@ -98,7 +96,7 @@ def best_candidate(indices, overlaps, confidences):
     return max(indices, key=lambda index: (float(overlaps[index]), float(confidences[index])))
 
 
-def geometry_profile(box, width, height, imgsz):
+def geometry_profile(box, width, height, imgsz, nwd_threshold=0.04):
     """Return detector-input geometry for one xyxy box."""
     if box is None:
         return {}
@@ -106,12 +104,15 @@ def geometry_profile(box, width, height, imgsz):
     scale = min(imgsz / width, imgsz / height)
     short_side = min(box_width, box_height) * scale
     aspect_ratio = max(box_width, box_height) / max(min(box_width, box_height), 1e-9)
+    normalized_sqrt_area = float(np.sqrt(box_width * box_height) * scale / imgsz)
     return {
         "gt_aspect_ratio": aspect_ratio,
         "gt_short_side_px_at_imgsz": short_side,
         "gt_area_fraction": box_width * box_height / (width * height),
+        "gt_normalized_sqrt_area": normalized_sqrt_area,
         "gt_elongated": aspect_ratio >= 4,
         "gt_small_at_imgsz": box_width * box_height * scale**2 < 32**2,
+        "gt_nwd_active": bool(normalized_sqrt_area < nwd_threshold),
     }
 
 
@@ -156,8 +157,7 @@ def analyze_image(result, gt_classes, gt_boxes, args, names):
             continue
         class_id = int(gt_classes[gt_index])
         remaining_same = np.flatnonzero(
-            (pred_classes == class_id)
-            & ~np.isin(np.arange(len(pred_classes)), list(consumed_predictions))
+            (pred_classes == class_id) & ~np.isin(np.arange(len(pred_classes)), list(consumed_predictions))
         )
         same_index = best_candidate(remaining_same, overlaps[gt_index], confidences)
         same_iou = float(overlaps[gt_index, same_index]) if same_index is not None else 0.0
@@ -241,7 +241,7 @@ def analyze_image(result, gt_classes, gt_boxes, args, names):
                 "confidence": float(confidences[pred_index]),
                 "best_iou": maximum_iou,
                 "ground_truth_class": actual_class,
-                "predicted_class": actual_class,
+                "predicted_class": names[class_id],
                 "gt_index": best_gt if error_type != "false_positive" else None,
                 "gt_box": gt_boxes[best_gt] if error_type != "false_positive" else None,
                 "pred_box": pred_boxes[pred_index],
@@ -270,12 +270,17 @@ def main():
         raise ValueError("Require 0 < candidate-conf <= false-positive-conf < 1")
     if not 0 <= args.localization_iou < args.confusion_iou < args.match_iou <= 1:
         raise ValueError("Require localization-iou < confusion-iou < match-iou")
+    if args.nwd_threshold <= 0:
+        raise ValueError("nwd-threshold must be positive")
     data_path, weights, output = args.data.resolve(), args.weights.resolve(), args.output.resolve()
     for required in (data_path, weights):
         if not required.is_file():
             raise FileNotFoundError(required)
     if output.exists():
         raise FileExistsError(f"Refusing to overwrite existing output: {output}")
+    summary_output = args.summary_output.resolve() if args.summary_output else None
+    if summary_output and summary_output.exists():
+        raise FileExistsError(f"Refusing to overwrite existing summary: {summary_output}")
     images_output = output / "images"
     images_output.mkdir(parents=True)
 
@@ -321,10 +326,11 @@ def main():
             class_name = names[int(gt_class)]
             if int(gt_class) not in TARGET_CLASSES:
                 continue
-            geometry = geometry_profile(gt_box, width, height, args.imgsz)
+            geometry = geometry_profile(gt_box, width, height, args.imgsz, args.nwd_threshold)
             endpoint = endpoint_profile(class_name, gt_box, gt_classes, gt_boxes, names, width, height)
             target_gt_counts[(class_name, "all")] += 1
             target_gt_counts[(class_name, "elongated" if geometry["gt_elongated"] else "not_elongated")] += 1
+            target_gt_counts[(class_name, f"nwd_active={geometry['gt_nwd_active']}")] += 1
             target_geometry[class_name]["short_side_px_at_imgsz"].append(geometry["gt_short_side_px_at_imgsz"])
             target_geometry[class_name]["aspect_ratio"].append(geometry["gt_aspect_ratio"])
             if endpoint:
@@ -346,7 +352,7 @@ def main():
             error_counts[(error["class"], error["error_type"])] += 1
             if error["origin"] == "ground_truth":
                 gt_error_counts[(error["ground_truth_class"], error["error_type"])] += 1
-            geometry = geometry_profile(error["gt_box"], width, height, args.imgsz)
+            geometry = geometry_profile(error["gt_box"], width, height, args.imgsz, args.nwd_threshold)
             profile_class = error["ground_truth_class"] or error["class"]
             endpoint = endpoint_profile(
                 profile_class,
@@ -384,8 +390,12 @@ def main():
                         f"{geometry.get('gt_short_side_px_at_imgsz', ''):.2f}" if geometry else ""
                     ),
                     "gt_area_fraction": f"{geometry.get('gt_area_fraction', ''):.8f}" if geometry else "",
+                    "gt_normalized_sqrt_area": (
+                        f"{geometry.get('gt_normalized_sqrt_area', ''):.6f}" if geometry else ""
+                    ),
                     "gt_elongated": geometry.get("gt_elongated", ""),
                     "gt_small_at_imgsz": geometry.get("gt_small_at_imgsz", ""),
+                    "gt_nwd_active": geometry.get("gt_nwd_active", ""),
                     "endpoint_class": endpoint.get("endpoint_class", ""),
                     "endpoint_visible": endpoint.get("endpoint_visible", ""),
                     "endpoint_min_center_distance_normalized": (
@@ -416,9 +426,18 @@ def main():
         "review_images": len(tiles),
         "review_rows": len(rows),
         "errors": {f"{name}/{kind}": count for (name, kind), count in sorted(error_counts.items())},
-        "ground_truth_errors": {
-            f"{name}/{kind}": count for (name, kind), count in sorted(gt_error_counts.items())
-        },
+        "ground_truth_errors": {f"{name}/{kind}": count for (name, kind), count in sorted(gt_error_counts.items())},
+        "class_confusion_pairs": dict(
+            sorted(
+                Counter(
+                    f"{row['ground_truth_class']}->{row['predicted_class']}"
+                    for row in rows
+                    if row["ground_truth_class"]
+                    and row["predicted_class"]
+                    and row["ground_truth_class"] != row["predicted_class"]
+                ).items()
+            )
+        ),
         "error_geometry": {
             f"{name}/{kind}/elongated={elongated}": count
             for (name, kind, elongated), count in sorted(geometry_counts.items())
@@ -439,6 +458,32 @@ def main():
             }
             for name in TARGET_CLASSES.values()
         },
+        "nwd_scale_error_rates": {
+            name: {
+                f"active={active}": {
+                    "errors": sum(
+                        row["origin"] == "ground_truth"
+                        and row["ground_truth_class"] == name
+                        and row["gt_nwd_active"] is active
+                        for row in rows
+                    ),
+                    "targets": target_gt_counts[(name, f"nwd_active={active}")],
+                    "rate": (
+                        sum(
+                            row["origin"] == "ground_truth"
+                            and row["ground_truth_class"] == name
+                            and row["gt_nwd_active"] is active
+                            for row in rows
+                        )
+                        / target_gt_counts[(name, f"nwd_active={active}")]
+                        if target_gt_counts[(name, f"nwd_active={active}")]
+                        else None
+                    ),
+                }
+                for active in (True, False)
+            }
+            for name in TARGET_CLASSES.values()
+        },
         "geometry_distributions": {
             name: {
                 "all_targets": {metric: distribution_summary(values) for metric, values in metrics.items()},
@@ -455,9 +500,14 @@ def main():
             "confusion_iou": args.confusion_iou,
             "match_iou": args.match_iou,
             "include_duplicates": args.include_duplicates,
+            "nwd_scale_threshold": args.nwd_threshold,
         },
     }
-    (output / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    summary_text = json.dumps(summary, ensure_ascii=False, indent=2) + "\n"
+    (output / "summary.json").write_text(summary_text, encoding="utf-8")
+    if summary_output:
+        summary_output.parent.mkdir(parents=True, exist_ok=True)
+        summary_output.write_text(summary_text, encoding="utf-8")
     (output / "README.txt").write_text(
         "颜色说明：绿色是现有标注；橙色是涉及错误的标注；红色是误检、重复预测或类别混淆；"
         "紫色是 IoU 低于 0.5 的同类预测。\n"
