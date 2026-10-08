@@ -295,6 +295,11 @@ PRESETS["paper_csl_nwd"] = {
     "nwd_threshold": 0.04,
     "nwd_constant": 12.8,
 }
+PRESETS["paper_csl_nwd_error_scale"] = {
+    **PRESETS["paper_csl_nwd"],
+    "name": "paper_yolo26s_csl_nwd_error_scale_seed0",
+    "nwd_threshold": 0.1,
+}
 PRESETS["paper_csl_margin"] = {
     **PRESETS["paper_csl_control"],
     "name": "paper_yolo26s_csl_margin_seed0",
