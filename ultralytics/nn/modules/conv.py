@@ -8,11 +8,13 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 __all__ = (
     "CBAM",
     "ChannelAttention",
     "Concat",
+    "ContextGate",
     "Conv",
     "Conv2",
     "ConvTranspose",
@@ -611,6 +613,31 @@ class CBAM(nn.Module):
             (torch.Tensor): Attended output tensor.
         """
         return self.spatial_attention(self.channel_attention(x))
+
+
+class ContextGate(nn.Module):
+    """Refine a fine-resolution feature map with semantic context from the next coarser scale."""
+
+    is_context_gate = True
+
+    def __init__(self, channels: tuple[int, int] | list[int]):
+        """Initialize an identity-preserving spatial gate for fine and coarse feature maps."""
+        super().__init__()
+        fine_channels, context_channels = channels
+        self.context_projection = Conv(context_channels, fine_channels, 1)
+        self.gate = nn.Conv2d(fine_channels * 2, 1, 3, padding=1)
+        nn.init.zeros_(self.gate.weight)
+        nn.init.zeros_(self.gate.bias)
+        self.capture_attention = False
+        self.gate_logits = None
+
+    def forward(self, x: list[torch.Tensor] | tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
+        """Gate the fine feature with aligned coarse semantics and retain logits for foreground supervision."""
+        fine, context = x
+        context = F.interpolate(self.context_projection(context), size=fine.shape[2:], mode="nearest")
+        logits = self.gate(torch.cat((fine, context), 1))
+        self.gate_logits = logits if self.capture_attention else None
+        return fine * (0.5 + logits.sigmoid())
 
 
 class Concat(nn.Module):
