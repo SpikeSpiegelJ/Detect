@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from collections import Counter, defaultdict
 import csv
 import json
+from argparse import ArgumentParser
+from collections import Counter, defaultdict
 from pathlib import Path
 
 import numpy as np

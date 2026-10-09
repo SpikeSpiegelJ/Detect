@@ -204,3 +204,12 @@
 - 主稿中的性能数值全部来自归档CSV/JSON；旧中英文CSL稿已标记为开发记录，避免误用。
 - 仍需作者本人提供作者与单位、通讯作者、经费、利益冲突、伦理与现场授权，以及最终数据开放方式。
 - 证据：`manuscript_reframing_record.md`、`E:/期刊写作/初稿/Evidence_Driven_DAS_Detection_English_SCI_Submission_Draft_2026-10-09.md`。
+
+## 阶段21：英文Word投稿稿与版式质检（已完成）
+
+- 将英文Markdown主稿转换为可编辑Word投稿稿，保留完整论文结构、6个表格和3幅图，并统一标题、表格、页眉、页码和参考文献样式。
+- 未虚构作者、单位、通讯作者、经费、伦理、利益冲突或现场授权信息；这些作者侧元数据继续保留待填。
+- 使用Microsoft Word导出PDF并以120 dpi渲染，逐页检查最终12页；未发现文字截断、对象重叠、表题孤立、列表编号串联或图轴裁切。
+- 标题层级审计通过；修复3幅图的替代文本后，可访问性审计为0个高严重度、0个中严重度问题。保留6条原始URL显示形式的低严重度提示。
+- 最终DOCX大小194,588字节，SHA-256为`BF926C07EF208051DFB3950D2B7A01722E4046BADD89F28A052DDFE03A1CDC44`。
+- 证据：`manuscript_docx_qa_record.md`、`E:/期刊写作/初稿/Evidence_Driven_DAS_Detection_English_SCI_Submission_Draft_2026-10-09.docx`。

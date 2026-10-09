@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = spec_from_file_location("merge_reviewed_corrections", ROOT / "dataset" / "merge_reviewed_corrections.py")
 MERGE = module_from_spec(SPEC)

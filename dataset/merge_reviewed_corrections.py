@@ -2,21 +2,19 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from collections import Counter
 import hashlib
 import json
 import os
-from pathlib import Path
 import shutil
 import sys
-
+from argparse import ArgumentParser
+from collections import Counter
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from dataset.audit_annotation_provenance import equivalent_delta, label_index, labels_equal  # noqa: E402
-
+from dataset.audit_annotation_provenance import equivalent_delta, label_index, labels_equal
 
 IMAGE_SUFFIXES = {".bmp", ".jpeg", ".jpg", ".png", ".tif", ".tiff", ".webp"}
 
