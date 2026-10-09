@@ -213,3 +213,12 @@
 - 标题层级审计通过；修复3幅图的替代文本后，可访问性审计为0个高严重度、0个中严重度问题。保留6条原始URL显示形式的低严重度提示。
 - 最终DOCX大小194,588字节，SHA-256为`BF926C07EF208051DFB3950D2B7A01722E4046BADD89F28A052DDFE03A1CDC44`。
 - 证据：`manuscript_docx_qa_record.md`、`E:/期刊写作/初稿/Evidence_Driven_DAS_Detection_English_SCI_Submission_Draft_2026-10-09.docx`。
+
+## 阶段22：GitHub PR交付与全差异复核（已完成）
+
+- 功能分支`codex/sci-evidence-implementation`已推送，并创建堆叠PR `https://github.com/SpikeSpiegelJ/Detect/pull/2`；其基线为仍在审的初始导入分支，避免重复混入PR 1的基础导入差异。
+- 33项研究专项测试全部通过；相对PR基线变更的全部Python文件通过Ruff格式检查、导入顺序检查以及`E9/F63/F7/F82`关键正确性检查；`git diff --check`通过。
+- GitHub对当前PR头返回0个check run和0个workflow run，因此该fork没有自动格式化或自动审查提交可拉取。
+- 全差异审查明确回答仓库门禁：已删除被证据否定的细长目标回归增权路径；新增的增益开关属于显式实验配置，不是压制症状的防护分支；CSL实现仅因负结果复现需要保留且默认关闭。
+- 结论：未发现仍需阻止交付的正确性、数据泄漏或无证据主张问题；PR可供人工复核，但在堆叠基线PR仍开放时不得自动合并。
+- 证据：`pull_request_review_record.md`、`https://github.com/SpikeSpiegelJ/Detect/pull/2`。
