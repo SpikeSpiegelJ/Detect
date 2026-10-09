@@ -175,3 +175,13 @@
 - 弱类错误审计中，基线和间隔损失组均没有类别混淆对；真实目标错误由8个增至9个，不支持当前错误由最高负类logit间隔不足主导。
 - 决策：该单模块从最终方法候选中淘汰，不继续搜索间隔或增益，不访问内部测试集。
 - 证据：`csl_margin_vs_control_val.json`、`csl_margin_screening_summary.md`、`csl_control_v9_val_difficulty_t010.json`、`csl_margin_v9_val_difficulty_t010.json`。
+
+## 阶段18：误差尺度校准 NWD 单模块复核（已完成）
+
+- 原阈值0.04只覆盖约51.2 px以下等效边长，低于既有错误审计中的典型失败尺度；按预注册说明只做一次误差尺度校准，将阈值固定为0.10，其余设置保持不变。
+- 训练在第11轮早停，最佳为第5轮；候选权重SHA-256为`15c3ee908320a6c8e266ff49b75aa03d5a49139f7bd5d28161730d3b28e2d0b5`。
+- 统一重载复评中，mAP@0.5从0.97012降至0.96839，mAP@0.5:0.95从0.71199降至0.70897；三类馈线/缺陷薄弱类别平均AP@0.5:0.95下降0.00635。
+- RRU侧馈线、馈线剪断缺陷和天线侧馈线分别下降0.00276、0.01524和0.00106；小型天线下降0.00369。
+- 阈值0.10实际激活小型天线6个、RRU侧馈线3个、馈线剪断缺陷16个和天线侧馈线2个目标；控制组和候选组在这些激活目标上的高置信真实目标错误数完全相同，没有形成机制一致的尺度子集收益。
+- 决策：一次性尺度校准仍失败，正式淘汰尺度自适应IoU—NWD，不再搜索阈值、权重或常数，不访问内部测试集。
+- 证据：`csl_nwd_error_scale_vs_control_val.json`、`csl_nwd_error_scale_v9_val_difficulty_t010.json`、`csl_nwd_error_scale_screening_summary.md`、`csl_nwd_threshold_rationale.md`。
