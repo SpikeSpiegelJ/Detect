@@ -1,7 +1,7 @@
 """Train the local YOLO detector."""
 
-from argparse import ArgumentParser, BooleanOptionalAction
 import os
+from argparse import ArgumentParser, BooleanOptionalAction
 from pathlib import Path
 
 # This Conda environment loads both Intel OpenMP runtimes. Set before importing PyTorch.
@@ -11,23 +11,25 @@ import torch
 
 from ultralytics import YOLO
 
-
 ROOT = Path(__file__).resolve().parent
 V6_WEIGHTS = ROOT / "runs" / "train" / "yolo12s_p2_repartition_v6_dataset7_9c" / "weights" / "best.pt"
 V6_DATA = ROOT / "dataset" / "data_rep     artition_v6_dataset7_9c.yaml"
 V7_DATA = ROOT / "dataset" / "data_repartition_v7_dataset8_9c.yaml"
 V8_DATA = ROOT / "dataset" / "data_repartition_v8_dataset9_9c.yaml"
+V9_DATA = ROOT / "dataset" / "data_repartition_v9_trainval_9c.yaml"
 V10_AUGMENTED_DATA = ROOT / "dataset" / "data_repartition_v10_augmented_9c.yaml"
 V11_TARGET_CROP_DATA = ROOT / "dataset" / "data_repartition_v11_target_crop_9c.yaml"
 V13_CUT_FEEDER_HARD_DATA = ROOT / "dataset" / "data_repartition_v13_cut_feeder_hard_9c.yaml"
 V14_CUT_FEEDER_SPECIALIST_DATA = ROOT / "dataset" / "data_repartition_v14_cut_feeder_specialist.yaml"
 V15_OOF_REVIEWED_DATA = ROOT / "dataset" / "data_repartition_v15_oof_reviewed_9c.yaml"
+V15_ANNOTATION_CONTROL_DATA = ROOT / "dataset" / "data_repartition_v15_annotation_control_clean_val_9c.yaml"
 V8_REVIEWED_HARD_DATA = ROOT / "dataset" / "data_repartition_v8_reviewed_hard_2x.yaml"
 FOCUS_HARDNEG_DATA = ROOT / "dataset" / "data_repartition_v6_focus_hardneg.yaml"
 YOLO26S_WEIGHTS = ROOT / "yolo26s.pt"
 YOLO26M_WEIGHTS = ROOT / "yolo26m.pt"
 YOLO26S_O2M_CFG = ROOT / "ultralytics" / "cfg" / "models" / "26" / "yolo26s-o2m.yaml"
 YOLO26S_CBAM_P3_O2M_CFG = ROOT / "ultralytics" / "cfg" / "models" / "26" / "yolo26s-cbam-p3-o2m.yaml"
+YOLO26S_CSL_O2M_CFG = ROOT / "ultralytics" / "cfg" / "models" / "26" / "yolo26s-csl-o2m.yaml"
 YOLO26S_P2_O2M_CFG = ROOT / "ultralytics" / "cfg" / "models" / "26" / "yolo26s-p2-o2m.yaml"
 YOLO26M_O2M_CFG = ROOT / "ultralytics" / "cfg" / "models" / "26" / "yolo26m-o2m.yaml"
 V8_WEIGHTS = ROOT / "runs" / "train" / "yolo26s_v8_dataset9_9c" / "weights" / "best.pt"
@@ -258,6 +260,7 @@ PRESETS["v13_cut_feeder_hard_yolo26s_ft"] = {
 PRESETS["v14_cut_feeder_specialist"] = {
     **PRESETS["v11_target_crop_yolo26s_ft"],
     "model": V9_YOLO26S_WEIGHTS,
+    "weights": None,
     "data": V14_CUT_FEEDER_SPECIALIST_DATA,
     "name": "yolo26s_v14_cut_feeder_specialist",
     "epochs": 40,
@@ -272,6 +275,67 @@ PRESETS["v15_oof_reviewed"] = {
     "epochs": 30,
     "patience": 10,
     "save_period": -1,
+}
+PRESETS["paper_csl_control"] = {
+    **PRESETS["v10_augmented_yolo26s_ft"],
+    "model": V9_YOLO26S_WEIGHTS,
+    "weights": None,
+    "data": V9_DATA,
+    "name": "paper_yolo26s_csl_control_seed0",
+    "epochs": 15,
+    "patience": 6,
+    "save_period": -1,
+    "nwd_gain": 0.0,
+    "class_margin_gain": 0.0,
+}
+PRESETS["paper_csl_nwd"] = {
+    **PRESETS["paper_csl_control"],
+    "name": "paper_yolo26s_csl_nwd_seed0",
+    "nwd_gain": 0.5,
+    "nwd_threshold": 0.04,
+    "nwd_constant": 12.8,
+}
+PRESETS["paper_csl_nwd_error_scale"] = {
+    **PRESETS["paper_csl_nwd"],
+    "name": "paper_yolo26s_csl_nwd_error_scale_seed0",
+    "nwd_threshold": 0.1,
+}
+PRESETS["paper_csl_margin"] = {
+    **PRESETS["paper_csl_control"],
+    "name": "paper_yolo26s_csl_margin_seed0",
+    "class_margin_gain": 0.1,
+    "class_margin": 0.2,
+}
+PRESETS["paper_csl_losses"] = {
+    **PRESETS["paper_csl_nwd"],
+    "name": "paper_yolo26s_csl_losses_seed0",
+    "class_margin_gain": 0.1,
+    "class_margin": 0.2,
+}
+PRESETS["paper_csl_context"] = {
+    **PRESETS["paper_csl_control"],
+    "model": YOLO26S_CSL_O2M_CFG,
+    "weights": V9_YOLO26S_WEIGHTS,
+    "name": "paper_yolo26s_csl_context_seed0",
+    "context_loss_gain": 0.1,
+}
+PRESETS["paper_csl_full"] = {
+    **PRESETS["paper_csl_losses"],
+    "model": YOLO26S_CSL_O2M_CFG,
+    "weights": V9_YOLO26S_WEIGHTS,
+    "name": "paper_yolo26s_csl_full_seed0",
+    "context_loss_gain": 0.1,
+}
+PRESETS["paper_p2_baseline"] = {
+    **PRESETS["paper_csl_control"],
+    "model": YOLO26S_P2_O2M_CFG,
+    "weights": V9_YOLO26S_WEIGHTS,
+    "name": "paper_yolo26s_p2_baseline_seed0",
+}
+PRESETS["paper_annotation_control"] = {
+    **PRESETS["v15_oof_reviewed"],
+    "data": V15_ANNOTATION_CONTROL_DATA,
+    "name": "paper_yolo26s_v15_annotation_control_seed0",
 }
 
 
@@ -289,7 +353,7 @@ def build_model(args):
         # Model.train rebuilds from YAML and transfers this initialized model only when ckpt is set.
         model.ckpt = {"model": target}
         print("Transferred all 28 V6 layers; only P2 CBAM is newly initialized.")
-    elif args.preset == "v8_yolo26s_p2_o2m_ft":
+    elif args.preset in {"v8_yolo26s_p2_o2m_ft", "paper_p2_baseline"}:
         source = YOLO(args.weights or V8_RELABEL_WEIGHTS).model.float()
         target = model.model
         assert len(source.model) == 24 and len(target.model) == 30
@@ -305,7 +369,7 @@ def build_model(args):
         target.names = source.names.copy()
         model.ckpt = {"model": target}
         print("Transferred the backbone plus reusable P3-P5 neck and Detect branches; only P2 is initialized.")
-    elif args.preset == "v8_yolo26s_cbam_p3_o2m_ft":
+    elif args.preset in {"v8_yolo26s_cbam_p3_o2m_ft", "paper_csl_context", "paper_csl_full"}:
         source = YOLO(args.weights or V8_RELABEL_WEIGHTS).model.float()
         target = model.model
         assert len(source.model) == 24 and len(target.model) == 25
@@ -317,7 +381,9 @@ def build_model(args):
             )
         target.names = source.names.copy()
         model.ckpt = {"model": target}
-        print("Transferred all backbone, neck, and one-to-many Detect weights; only P3 CBAM is initialized.")
+        print(
+            "Transferred all backbone, neck, and one-to-many Detect weights; only the added P3 module is initialized."
+        )
     elif args.weights is not None:
         model.load(args.weights)
     return model
@@ -345,6 +411,14 @@ def parse_args():
     parser.add_argument("--box", type=float, help="Box loss gain. Defaults to the framework setting.")
     parser.add_argument("--cls", type=float, help="Classification loss gain. Defaults to the framework setting.")
     parser.add_argument("--dfl", type=float, help="Distance regression loss gain. Defaults to the framework setting.")
+    parser.add_argument("--nwd-gain", type=float, help="Maximum scale-adaptive NWD mixing weight.")
+    parser.add_argument("--nwd-threshold", type=float, help="Normalized box scale below which NWD is activated.")
+    parser.add_argument("--nwd-constant", type=float, help="NWD normalization constant in input-image pixels.")
+    parser.add_argument("--class-margin-gain", type=float, help="Hardest-negative class-margin loss gain.")
+    parser.add_argument(
+        "--class-margin", type=float, help="Required foreground logit gap to the hardest negative class."
+    )
+    parser.add_argument("--context-loss-gain", type=float, help="Box-derived foreground supervision gain.")
     parser.add_argument("--tal-topk", type=int, help="Task-aligned assigner candidates per ground-truth box.")
     parser.add_argument("--patience", type=int, help="Early-stopping patience. Defaults to the selected preset.")
     parser.add_argument("--save-period", type=int, help="Save every N epochs. Negative values disable periodic saves.")
@@ -412,6 +486,12 @@ def main():
         box=args.box if args.box is not None else 7.5,
         cls=args.cls if args.cls is not None else 0.5,
         dfl=args.dfl if args.dfl is not None else 1.5,
+        nwd_gain=args.nwd_gain if args.nwd_gain is not None else 0.0,
+        nwd_threshold=args.nwd_threshold if args.nwd_threshold is not None else 0.04,
+        nwd_constant=args.nwd_constant if args.nwd_constant is not None else 12.8,
+        class_margin_gain=args.class_margin_gain if args.class_margin_gain is not None else 0.0,
+        class_margin=args.class_margin if args.class_margin is not None else 0.2,
+        context_loss_gain=args.context_loss_gain if args.context_loss_gain is not None else 0.0,
         tal_topk=args.tal_topk if args.tal_topk is not None else 10,
         patience=args.patience,
         save_period=args.save_period if args.save_period is not None else -1,

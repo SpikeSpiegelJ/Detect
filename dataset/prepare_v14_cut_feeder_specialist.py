@@ -3,16 +3,15 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from collections import Counter
 import json
 import os
-from pathlib import Path
 import random
 import shutil
+from argparse import ArgumentParser
+from collections import Counter
+from pathlib import Path
 
 import yaml
-
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_SOURCE = ROOT / "repartition_v13_cut_feeder_hard_corrected"
@@ -112,7 +111,8 @@ def main():
         "val": materialize(val, output, "val"),
         "test": materialize(test, output, "test"),
         "positive_full_images": len(positives),
-        "hard_negative_images": len(selected_negatives),
+        "confuser_negative_images": len(selected_negatives),
+        "negative_selection": "fixed-seed random sample without specialist targets and with classes 1, 3, or 4",
     }
     descriptor = {
         "path": output.as_posix(),

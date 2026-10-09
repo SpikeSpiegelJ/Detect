@@ -1,0 +1,17 @@
+{
+  "source": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v14_cut_feeder_specialist",
+  "output": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\runs\\datasets\\specialist_tight_crops",
+  "margin": 0.15,
+  "full_positive_images": 1002,
+  "tight_crop_images": 1002,
+  "tight_crop_instances": [
+    462,
+    540
+  ],
+  "train_images": 2004,
+  "manifest": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive_tight.txt",
+  "manifest_sha256": "26596bbd72ce351b00d455993659859de2ed26d2893db408cb0b4e4009cd3352",
+  "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\specialist_ablation_manifests\\full_positive_tight.yaml",
+  "data_sha256": "19dd23b3ce69aa62b1b068eac1b8e044d0663b7829543dabedd907e7523799ad",
+  "context_excluded": "Each crop label contains only its single target; surrounding device labels are removed."
+}

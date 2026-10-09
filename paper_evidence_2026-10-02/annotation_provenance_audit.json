@@ -1,0 +1,1145 @@
+{
+  "scope": {
+    "review_sampling": "model-error-mined OOF candidates; not a random sample and not a dataset-wide error-rate estimate",
+    "original_root": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v9_trainval_9c",
+    "reviewed_root": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v15_oof_reviewed",
+    "current_root": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected",
+    "test_labels_changed_by_oof_review": false
+  },
+  "oof_review": {
+    "decisions": {
+      "annotation_error": 78,
+      "model_error": 101,
+      "acceptable": 44,
+      "uncertain": 6
+    },
+    "actions": {
+      "reclass_gt": 23,
+      "add_pred_box": 55
+    },
+    "reviewed_corrections": 78,
+    "applied_corrections": 77,
+    "changed_labels": 75,
+    "normalized_review": {
+      "rows": 229,
+      "unique_images": 200,
+      "rows_by_decision": {
+        "acceptable": 44,
+        "annotation_error": 78,
+        "model_error": 101,
+        "uncertain": 6
+      },
+      "unique_images_by_decision": {
+        "acceptable": 43,
+        "annotation_error": 75,
+        "model_error": 93,
+        "uncertain": 6
+      }
+    },
+    "selection_summary": {
+      "method": "three-fold out-of-fold error mining",
+      "development_images": 3027,
+      "development_unique_images": 3027,
+      "independent_test_images_checked_only_for_leakage": 535,
+      "folds": [
+        {
+          "fold": 1,
+          "images": 1009,
+          "error_images": 88
+        },
+        {
+          "fold": 2,
+          "images": 1009,
+          "error_images": 97
+        },
+        {
+          "fold": 3,
+          "images": 1009,
+          "error_images": 78
+        }
+      ],
+      "all_error_images": 263,
+      "selected_review_images": 200,
+      "selected_review_rows": 229,
+      "all_errors": {
+        "Feeder_antenna/class_confusion": 8,
+        "Feeder_antenna/class_confusion_prediction": 4,
+        "Feeder_antenna/false_positive": 24,
+        "Feeder_antenna/localization": 54,
+        "Feeder_antenna/missed_gt": 32,
+        "cut/class_confusion": 14,
+        "cut/class_confusion_prediction": 8,
+        "cut/false_positive": 35,
+        "cut/localization": 48,
+        "cut/missed_gt": 67
+      },
+      "selected_errors": {
+        "Feeder_antenna/class_confusion": 8,
+        "Feeder_antenna/class_confusion_prediction": 4,
+        "Feeder_antenna/false_positive": 24,
+        "Feeder_antenna/localization": 40,
+        "Feeder_antenna/missed_gt": 32,
+        "cut/class_confusion": 14,
+        "cut/class_confusion_prediction": 8,
+        "cut/false_positive": 27,
+        "cut/localization": 5,
+        "cut/missed_gt": 67
+      }
+    },
+    "transition_counts": {
+      "Feeder_RRU->Feeder_antenna": 1,
+      "Feeder_antenna->Feeder_RRU": 7,
+      "Feeder_antenna->Feeder_antenna": 1,
+      "Feeder_antenna->antenna_b": 1,
+      "Feeder_antenna->cut": 2,
+      "antenna_b->cut": 1,
+      "cut->Feeder_RRU": 1,
+      "cut->Feeder_antenna": 7,
+      "cut->coupler": 1,
+      "cut->cut": 1
+    },
+    "added_class_counts": {
+      "Feeder_antenna": 24,
+      "cut": 30
+    },
+    "corrected_class_counts": {
+      "Feeder_RRU": 8,
+      "Feeder_antenna": 33,
+      "antenna_b": 1,
+      "coupler": 1,
+      "cut": 34
+    }
+  },
+  "current_dataset_comparison": {
+    "reviewed_changed_files_checked": 75,
+    "status_counts": {
+      "equivalent_current_correction": 3,
+      "inherited_reviewed_correction": 2,
+      "reviewed_no_semantic_change": 2,
+      "still_original": 68
+    },
+    "missing_files": [],
+    "semantic_no_op_files": [
+      "v8_train__base_train_54e362cd437a17c6c294.txt",
+      "v8_train__base_train_fba8d5453c8604715ce2.txt"
+    ],
+    "current_review_changed_files": 13,
+    "overlap_with_oof_review": [
+      "v8_train__base_train_2b670a8a0c128e839536.txt",
+      "v8_train__base_train_74f5887f0cffacbe7521.txt",
+      "v8_train__base_train_8dfdee9b53f6d23db77e.txt",
+      "v8_train__base_train_ccac95998da48e33e597.txt",
+      "v8_val__base_train_0a45658dce832e3368f5.txt"
+    ]
+  },
+  "records": [
+    {
+      "label": "v8_train__base_test_230238d3c4d7f8e2e6d6.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 36,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_test_5550b846e98cc64cc557.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 157,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_test_5de3bed4eadbf7f31f6a.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 5,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_test_a08eb783723a294cfd2f.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 166,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_test_f449790f778fe98de3d7.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 10,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_02f44d5c6dcf0d9819d6.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 173,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_121f5fa0857e9bf38700.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 178,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_1625744e6b3632922b95.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 162,
+          "action": "add_pred_box",
+          "class": "cut"
+        },
+        {
+          "row": 163,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_1f24b19b09301d634238.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 30,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_2685b20e59dc9a79e5d9.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 154,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_27c675962008f52af006.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 65,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_2b670a8a0c128e839536.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "inherited_reviewed_correction",
+      "changes": [
+        {
+          "row": 81,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_39a58640a2e83791ad24.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 1,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "coupler"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_3db131c74814065e9636.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 179,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_43258c5129b717b3456c.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 192,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_4c323db6499f0c4ce130.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 41,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_54e362cd437a17c6c294.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "reviewed_no_semantic_change",
+      "changes": [
+        {
+          "row": 139,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_56fc896f795ed4e682b6.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 62,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_6716b1960bbb2b7e9d24.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 47,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_6bbfc0b70ba61bf1a2cc.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 89,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_74f5887f0cffacbe7521.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "equivalent_current_correction",
+      "changes": [
+        {
+          "row": 165,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_7649734250f76340fee2.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 169,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_857953694367ceeb1d23.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 150,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_8dfdee9b53f6d23db77e.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "equivalent_current_correction",
+      "changes": [
+        {
+          "row": 187,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_96c1b2b840be3cb2e9be.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 176,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_9760adb6fa1776c23269.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 98,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_a775118cfa3c33acf7b7.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 100,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_aba71bac35dc1b982d5e.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 172,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_abf1aaeb4664df68a263.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 26,
+          "action": "reclass_gt",
+          "from": "Feeder_RRU",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_b55dcf9b589d9b344288.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 186,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_bb1689b88956dc25b310.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 156,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_bf978197f9c1d91e5baf.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 153,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_c23a40eaec8da4b524db.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 15,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_c2b0f543bbeb87d8ae93.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 51,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_c56122146a6994311c84.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 189,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_ca3e911f398cdc9ec9bb.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 148,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_ccac95998da48e33e597.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "inherited_reviewed_correction",
+      "changes": [
+        {
+          "row": 107,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_d2a79215870eb72e6d62.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 7,
+          "action": "reclass_gt",
+          "from": "antenna_b",
+          "to": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_d68141d8a90d1fee6fec.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 23,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_dcf2dda3f1b2f6b4d679.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 2,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_e5321fe5c9c662dce762.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 144,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_e91875f0fe0803b9bcc8.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 19,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_f937bca153c5a576e7f1.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 193,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_fba8d5453c8604715ce2.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "reviewed_no_semantic_change",
+      "changes": [
+        {
+          "row": 140,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_fc45422fd0cca70bfb16.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 164,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_fcaa7466332c1b9a291b.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 4,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "antenna_b"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_02142747873caa194548.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 191,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_74b908ab2cd259c34db3.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 167,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_814735c3acb557b1bba5.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 168,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_920bcef0fcdc76a67677.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 21,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_930f194ae2f2c79bf851.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 161,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_cccef6d4263f6e650019.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 149,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_f96c4721dcea35f0fed0.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 3,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_0459e66ffe97c46be457.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 175,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_11358c30f17b4488feac.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 159,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_5e725cb7c2c51366efc6.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 29,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_7d77cbfb9649f1125e8d.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 17,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_a05eb2a98add04e80c04.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 190,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_e684b8d978d2cc6bd3f8.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 6,
+          "action": "reclass_gt",
+          "from": "Feeder_antenna",
+          "to": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_fa4e86489f34a783860c.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 177,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__base_train_0a45658dce832e3368f5.txt",
+      "original_split": "train",
+      "current_split": "val",
+      "status": "equivalent_current_correction",
+      "changes": [
+        {
+          "row": 57,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__base_train_1557f767ccb0e749554e.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 152,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__base_train_21bd582fe5553d7b25dc.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 180,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__base_train_68b59144bededf3929f7.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 67,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__base_train_edd4310220582ab0c4a7.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 183,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__base_val_cfb06782b039a3a9eefe.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 174,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__dataset_9_26ac3b14eb49ba4e52cf.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 170,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_val__dataset_9_45fb2c78e68a4843cbb5.txt",
+      "original_split": "train",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 184,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_test_5f46d02ac0b8df068366.txt",
+      "original_split": "val",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 11,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        },
+        {
+          "row": 12,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_0348d3cf39688849a4b6.txt",
+      "original_split": "val",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 185,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_4855bbb2a66128f9b52a.txt",
+      "original_split": "val",
+      "current_split": "val",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 134,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_RRU"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_580eafaaabe6ebde8ecf.txt",
+      "original_split": "val",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 160,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_train_a57ddeb52e2ba38cbad5.txt",
+      "original_split": "val",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 182,
+          "action": "add_pred_box",
+          "class": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__base_val_e97a7b60b391b2599bca.txt",
+      "original_split": "val",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 37,
+          "action": "reclass_gt",
+          "from": "cut",
+          "to": "Feeder_antenna"
+        }
+      ]
+    },
+    {
+      "label": "v8_train__dataset_9_61d9cd02e0773f6ff16b.txt",
+      "original_split": "val",
+      "current_split": "train",
+      "status": "still_original",
+      "changes": [
+        {
+          "row": 158,
+          "action": "add_pred_box",
+          "class": "cut"
+        }
+      ]
+    }
+  ]
+}

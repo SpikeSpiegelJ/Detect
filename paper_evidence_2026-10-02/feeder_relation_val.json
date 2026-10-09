@@ -1,0 +1,523 @@
+{
+  "general_weights": [
+    "E:\\Python-program\\Detect\\ultralytics\\runs\\train\\yolo26s_v9_trainval_o2m_dfl15_ft\\weights\\best.pt",
+    "E:\\Python-program\\Detect\\ultralytics\\runs\\train\\yolo26m_v9_trainval_ft\\weights\\best.pt"
+  ],
+  "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\data_repartition_v13_cut_feeder_hard_corrected_9c.yaml",
+  "split": "val",
+  "imgsz": 1280,
+  "batch": 2,
+  "nms_iou": 0.6,
+  "results": [
+    {
+      "strength": 0.0,
+      "split": "val",
+      "images": 500,
+      "elapsed_seconds": 93.07906120000189,
+      "metrics": {
+        "metrics/precision(B)": 0.9145612177624075,
+        "metrics/recall(B)": 0.8886317281416797,
+        "metrics/mAP50(B)": 0.9458468279500468,
+        "metrics/mAP50-95(B)": 0.5991185927694875,
+        "fitness": 0.5991185927694875
+      },
+      "speed_ms_per_image": {
+        "preprocess": 2.4654272000479978,
+        "inference": 166.21118360001128,
+        "loss": 0.0018689999633352272,
+        "postprocess": 0.669257599991397
+      },
+      "per_class": [
+        {
+          "class_id": 0,
+          "class_name": "coupler",
+          "instances": 296,
+          "precision": 0.9538710795282145,
+          "recall": 0.9358108108108109,
+          "mAP50": 0.977407309276848,
+          "mAP50-95": 0.586303746848116
+        },
+        {
+          "class_id": 1,
+          "class_name": "antenna_s",
+          "instances": 127,
+          "precision": 0.9259123983465619,
+          "recall": 0.937007874015748,
+          "mAP50": 0.9616402613309996,
+          "mAP50-95": 0.4910666538192001
+        },
+        {
+          "class_id": 2,
+          "class_name": "RRU",
+          "instances": 348,
+          "precision": 0.9718461995377955,
+          "recall": 0.985632183908046,
+          "mAP50": 0.9921349309035039,
+          "mAP50-95": 0.7155104877296721
+        },
+        {
+          "class_id": 3,
+          "class_name": "Feeder_RRU",
+          "instances": 301,
+          "precision": 0.8752746868185043,
+          "recall": 0.8160049699933479,
+          "mAP50": 0.9051699771509308,
+          "mAP50-95": 0.48112147942764666
+        },
+        {
+          "class_id": 4,
+          "class_name": "antenna_b",
+          "instances": 309,
+          "precision": 0.917778956811262,
+          "recall": 0.9676375404530745,
+          "mAP50": 0.9797108049399745,
+          "mAP50-95": 0.6581150628512396
+        },
+        {
+          "class_id": 5,
+          "class_name": "cut",
+          "instances": 229,
+          "precision": 0.9038766958620486,
+          "recall": 0.8864628820960698,
+          "mAP50": 0.9247918873666808,
+          "mAP50-95": 0.6386210098815683
+        },
+        {
+          "class_id": 6,
+          "class_name": "Feeder_antenna",
+          "instances": 153,
+          "precision": 0.8379998056586766,
+          "recall": 0.6085742861106274,
+          "mAP50": 0.8250816682555131,
+          "mAP50-95": 0.4946002985216656
+        },
+        {
+          "class_id": 7,
+          "class_name": "POWER",
+          "instances": 108,
+          "precision": 0.927848480469297,
+          "recall": 0.9525809566320802,
+          "mAP50": 0.9796431446321618,
+          "mAP50-95": 0.685363614419702
+        },
+        {
+          "class_id": 8,
+          "class_name": "BOX",
+          "instances": 109,
+          "precision": 0.9166426568293061,
+          "recall": 0.9079740492553123,
+          "mAP50": 0.9670414676938094,
+          "mAP50-95": 0.6413649814265779
+        }
+      ]
+    },
+    {
+      "strength": 0.25,
+      "split": "val",
+      "images": 500,
+      "elapsed_seconds": 94.06514300000345,
+      "metrics": {
+        "metrics/precision(B)": 0.9194513036651748,
+        "metrics/recall(B)": 0.8961144872938467,
+        "metrics/mAP50(B)": 0.945521778289844,
+        "metrics/mAP50-95(B)": 0.6005627247937816,
+        "fitness": 0.6005627247937816
+      },
+      "speed_ms_per_image": {
+        "preprocess": 2.5224656000209507,
+        "inference": 168.43219039995165,
+        "loss": 0.0020213999741827138,
+        "postprocess": 0.6509493999910774
+      },
+      "per_class": [
+        {
+          "class_id": 0,
+          "class_name": "coupler",
+          "instances": 296,
+          "precision": 0.9601980334038352,
+          "recall": 0.9121621621621622,
+          "mAP50": 0.977407309276848,
+          "mAP50-95": 0.586303746848116
+        },
+        {
+          "class_id": 1,
+          "class_name": "antenna_s",
+          "instances": 127,
+          "precision": 0.9462984889200524,
+          "recall": 0.937007874015748,
+          "mAP50": 0.9616402613309996,
+          "mAP50-95": 0.4910666538192001
+        },
+        {
+          "class_id": 2,
+          "class_name": "RRU",
+          "instances": 348,
+          "precision": 0.9796665024566722,
+          "recall": 0.9827586206896551,
+          "mAP50": 0.9921349309035039,
+          "mAP50-95": 0.7155104877296721
+        },
+        {
+          "class_id": 3,
+          "class_name": "Feeder_RRU",
+          "instances": 301,
+          "precision": 0.835259708141016,
+          "recall": 0.8604651162790697,
+          "mAP50": 0.9028570446153148,
+          "mAP50-95": 0.48271639989809384
+        },
+        {
+          "class_id": 4,
+          "class_name": "antenna_b",
+          "instances": 309,
+          "precision": 0.9285526915451686,
+          "recall": 0.9673650349643611,
+          "mAP50": 0.9797108049399745,
+          "mAP50-95": 0.6581150628512396
+        },
+        {
+          "class_id": 5,
+          "class_name": "cut",
+          "instances": 229,
+          "precision": 0.9307506808716853,
+          "recall": 0.868995633187773,
+          "mAP50": 0.9247918873666808,
+          "mAP50-95": 0.6386210098815683
+        },
+        {
+          "class_id": 6,
+          "class_name": "Feeder_antenna",
+          "instances": 153,
+          "precision": 0.8111674871584688,
+          "recall": 0.7019232430206739,
+          "mAP50": 0.8244691538493026,
+          "mAP50-95": 0.5060025662698647
+        },
+        {
+          "class_id": 7,
+          "class_name": "POWER",
+          "instances": 108,
+          "precision": 0.9348045071032867,
+          "recall": 0.9444444444444444,
+          "mAP50": 0.9796431446321618,
+          "mAP50-95": 0.685363614419702
+        },
+        {
+          "class_id": 8,
+          "class_name": "BOX",
+          "instances": 109,
+          "precision": 0.9483636333863885,
+          "recall": 0.8899082568807339,
+          "mAP50": 0.9670414676938094,
+          "mAP50-95": 0.6413649814265779
+        }
+      ]
+    },
+    {
+      "strength": 0.5,
+      "split": "val",
+      "images": 500,
+      "elapsed_seconds": 93.10799889999907,
+      "metrics": {
+        "metrics/precision(B)": 0.9074661527852259,
+        "metrics/recall(B)": 0.9073136840841788,
+        "metrics/mAP50(B)": 0.9406420723927797,
+        "metrics/mAP50-95(B)": 0.5970703746751005,
+        "fitness": 0.5970703746751005
+      },
+      "speed_ms_per_image": {
+        "preprocess": 2.3086442000203533,
+        "inference": 167.15723000004073,
+        "loss": 0.0018107999712810852,
+        "postprocess": 0.6365396000255714
+      },
+      "per_class": [
+        {
+          "class_id": 0,
+          "class_name": "coupler",
+          "instances": 296,
+          "precision": 0.964267795689604,
+          "recall": 0.9116892565107649,
+          "mAP50": 0.9774080160823757,
+          "mAP50-95": 0.5863038175286688
+        },
+        {
+          "class_id": 1,
+          "class_name": "antenna_s",
+          "instances": 127,
+          "precision": 0.9517745431031155,
+          "recall": 0.9324218085279404,
+          "mAP50": 0.9616402613309996,
+          "mAP50-95": 0.4910666538192001
+        },
+        {
+          "class_id": 2,
+          "class_name": "RRU",
+          "instances": 348,
+          "precision": 0.9809237391454555,
+          "recall": 0.9827586206896551,
+          "mAP50": 0.9921349309035039,
+          "mAP50-95": 0.7155104877296721
+        },
+        {
+          "class_id": 3,
+          "class_name": "Feeder_RRU",
+          "instances": 301,
+          "precision": 0.7559561836508581,
+          "recall": 0.8903654485049833,
+          "mAP50": 0.8713220361670582,
+          "mAP50-95": 0.4548982243000914
+        },
+        {
+          "class_id": 4,
+          "class_name": "antenna_b",
+          "instances": 309,
+          "precision": 0.9311508500479672,
+          "recall": 0.9629124408497326,
+          "mAP50": 0.9797108049399745,
+          "mAP50-95": 0.6581150628512396
+        },
+        {
+          "class_id": 5,
+          "class_name": "cut",
+          "instances": 229,
+          "precision": 0.9341312638515028,
+          "recall": 0.8670091548591572,
+          "mAP50": 0.9247928345645711,
+          "mAP50-95": 0.6386211046013575
+        },
+        {
+          "class_id": 6,
+          "class_name": "Feeder_antenna",
+          "instances": 153,
+          "precision": 0.7475192058641976,
+          "recall": 0.7843137254901961,
+          "mAP50": 0.8120851552205645,
+          "mAP50-95": 0.5023894253993959
+        },
+        {
+          "class_id": 7,
+          "class_name": "POWER",
+          "instances": 108,
+          "precision": 0.9401435409136203,
+          "recall": 0.9444444444444444,
+          "mAP50": 0.9796431446321618,
+          "mAP50-95": 0.685363614419702
+        },
+        {
+          "class_id": 8,
+          "class_name": "BOX",
+          "instances": 109,
+          "precision": 0.9613282528007121,
+          "recall": 0.8899082568807339,
+          "mAP50": 0.9670414676938094,
+          "mAP50-95": 0.6413649814265779
+        }
+      ]
+    },
+    {
+      "strength": 0.75,
+      "split": "val",
+      "images": 500,
+      "elapsed_seconds": 92.75666450000062,
+      "metrics": {
+        "metrics/precision(B)": 0.8899796493569345,
+        "metrics/recall(B)": 0.9136698016430304,
+        "metrics/mAP50(B)": 0.9275275501841125,
+        "metrics/mAP50-95(B)": 0.5854557058652784,
+        "fitness": 0.5854557058652784
+      },
+      "speed_ms_per_image": {
+        "preprocess": 2.381087599991588,
+        "inference": 167.08466520004004,
+        "loss": 0.0018075999250868335,
+        "postprocess": 0.6411458001166466
+      },
+      "per_class": [
+        {
+          "class_id": 0,
+          "class_name": "coupler",
+          "instances": 296,
+          "precision": 0.9641988567610414,
+          "recall": 0.9098698277609987,
+          "mAP50": 0.9774080160823757,
+          "mAP50-95": 0.5863038175286688
+        },
+        {
+          "class_id": 1,
+          "class_name": "antenna_s",
+          "instances": 127,
+          "precision": 0.9515331706758788,
+          "recall": 0.9275379516384572,
+          "mAP50": 0.9616402613309996,
+          "mAP50-95": 0.4910666538192001
+        },
+        {
+          "class_id": 2,
+          "class_name": "RRU",
+          "instances": 348,
+          "precision": 0.9817664899919595,
+          "recall": 0.9827586206896551,
+          "mAP50": 0.9921349309035039,
+          "mAP50-95": 0.7155104877296721
+        },
+        {
+          "class_id": 3,
+          "class_name": "Feeder_RRU",
+          "instances": 301,
+          "precision": 0.6889800808077418,
+          "recall": 0.9169435215946844,
+          "mAP50": 0.806212179246676,
+          "mAP50-95": 0.4159813878736651
+        },
+        {
+          "class_id": 4,
+          "class_name": "antenna_b",
+          "instances": 309,
+          "precision": 0.9309773690417966,
+          "recall": 0.9603127788081687,
+          "mAP50": 0.9797108049399745,
+          "mAP50-95": 0.6581150628512396
+        },
+        {
+          "class_id": 5,
+          "class_name": "cut",
+          "instances": 229,
+          "precision": 0.9381574147833149,
+          "recall": 0.8611874534930077,
+          "mAP50": 0.9247936261907148,
+          "mAP50-95": 0.6386211837639718
+        },
+        {
+          "class_id": 6,
+          "class_name": "Feeder_antenna",
+          "instances": 153,
+          "precision": 0.643365857361483,
+          "recall": 0.8300653594771242,
+          "mAP50": 0.7591635206367973,
+          "mAP50-95": 0.43677416337480784
+        },
+        {
+          "class_id": 7,
+          "class_name": "POWER",
+          "instances": 108,
+          "precision": 0.9444219003027964,
+          "recall": 0.9444444444444444,
+          "mAP50": 0.9796431446321618,
+          "mAP50-95": 0.685363614419702
+        },
+        {
+          "class_id": 8,
+          "class_name": "BOX",
+          "instances": 109,
+          "precision": 0.9664157044863988,
+          "recall": 0.8899082568807339,
+          "mAP50": 0.9670414676938094,
+          "mAP50-95": 0.6413649814265779
+        }
+      ]
+    },
+    {
+      "strength": 1.0,
+      "split": "val",
+      "images": 500,
+      "elapsed_seconds": 95.36929339999915,
+      "metrics": {
+        "metrics/precision(B)": 0.8730664043864242,
+        "metrics/recall(B)": 0.9160161254692376,
+        "metrics/mAP50(B)": 0.9174579722088727,
+        "metrics/mAP50-95(B)": 0.577027344413102,
+        "fitness": 0.577027344413102
+      },
+      "speed_ms_per_image": {
+        "preprocess": 2.9650400001046364,
+        "inference": 169.96489459995064,
+        "loss": 0.0035849998967023566,
+        "postprocess": 0.9516315999280778
+      },
+      "per_class": [
+        {
+          "class_id": 0,
+          "class_name": "coupler",
+          "instances": 296,
+          "precision": 0.9641781750824726,
+          "recall": 0.9093239991360688,
+          "mAP50": 0.9774087235815297,
+          "mAP50-95": 0.5863038882785842
+        },
+        {
+          "class_id": 1,
+          "class_name": "antenna_s",
+          "instances": 127,
+          "precision": 0.951428162682483,
+          "recall": 0.9254361381013531,
+          "mAP50": 0.9616402613309996,
+          "mAP50-95": 0.4910666538192001
+        },
+        {
+          "class_id": 2,
+          "class_name": "RRU",
+          "instances": 348,
+          "precision": 0.9820193152459107,
+          "recall": 0.9827586206896551,
+          "mAP50": 0.9921349309035039,
+          "mAP50-95": 0.7155104877296721
+        },
+        {
+          "class_id": 3,
+          "class_name": "Feeder_RRU",
+          "instances": 301,
+          "precision": 0.6188940347521015,
+          "recall": 0.920265780730897,
+          "mAP50": 0.7461799620688206,
+          "mAP50-95": 0.37291157148742404
+        },
+        {
+          "class_id": 4,
+          "class_name": "antenna_b",
+          "instances": 309,
+          "precision": 0.9308697708707773,
+          "recall": 0.9587071633823754,
+          "mAP50": 0.9797108049399745,
+          "mAP50-95": 0.6581150628512396
+        },
+        {
+          "class_id": 5,
+          "class_name": "cut",
+          "instances": 229,
+          "precision": 0.9380014057726578,
+          "recall": 0.8588786359966246,
+          "mAP50": 0.9247944199116619,
+          "mAP50-95": 0.6386212631360665
+        },
+        {
+          "class_id": 6,
+          "class_name": "Feeder_antenna",
+          "instances": 153,
+          "precision": 0.5602871013738318,
+          "recall": 0.8627450980392157,
+          "mAP50": 0.7285680348173924,
+          "mAP50-95": 0.40398857656945175
+        },
+        {
+          "class_id": 7,
+          "class_name": "POWER",
+          "instances": 108,
+          "precision": 0.9439777337054783,
+          "recall": 0.9361214362662146,
+          "mAP50": 0.9796431446321618,
+          "mAP50-95": 0.685363614419702
+        },
+        {
+          "class_id": 8,
+          "class_name": "BOX",
+          "instances": 109,
+          "precision": 0.9679419399921048,
+          "recall": 0.8899082568807339,
+          "mAP50": 0.9670414676938094,
+          "mAP50-95": 0.6413649814265779
+        }
+      ]
+    }
+  ]
+}

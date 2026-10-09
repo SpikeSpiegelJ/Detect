@@ -1,0 +1,102 @@
+{
+  "data": "E:\\Python-program\\Detect\\ultralytics-sci-implementation\\dataset\\data_repartition_v13_cut_feeder_hard_corrected_9c.yaml",
+  "classes": {
+    "0": "coupler",
+    "1": "antenna_s",
+    "2": "RRU",
+    "3": "Feeder_RRU",
+    "4": "antenna_b",
+    "5": "cut",
+    "6": "Feeder_antenna",
+    "7": "POWER",
+    "8": "BOX"
+  },
+  "splits": {
+    "train": {
+      "images": 3529,
+      "instances": [
+        323,
+        279,
+        835,
+        650,
+        2248,
+        924,
+        1080,
+        277,
+        206
+      ]
+    },
+    "val": {
+      "images": 500,
+      "instances": [
+        296,
+        127,
+        348,
+        301,
+        309,
+        229,
+        153,
+        108,
+        109
+      ]
+    },
+    "test": {
+      "images": 535,
+      "instances": [
+        109,
+        71,
+        208,
+        161,
+        263,
+        121,
+        122,
+        68,
+        55
+      ]
+    }
+  },
+  "label_or_image_errors": [],
+  "identity_overlap": [
+    {
+      "splits": [
+        "train",
+        "val"
+      ],
+      "count": 0,
+      "identities": []
+    },
+    {
+      "splits": [
+        "train",
+        "test"
+      ],
+      "count": 0,
+      "identities": []
+    },
+    {
+      "splits": [
+        "val",
+        "test"
+      ],
+      "count": 0,
+      "identities": []
+    }
+  ],
+  "exact_pixel_duplicates": [],
+  "near_duplicate_candidates": [
+    {
+      "a": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\images\\train\\v8_train__base_train_7e1a901343b0f1f0b155.jpg",
+      "a_split": "train",
+      "b": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\images\\val\\v8_train__base_train_3f35df777145c6bc391c.jpg",
+      "b_split": "val",
+      "phash_distance": 0,
+      "thumbnail_mae": 0.4990234375
+    }
+  ],
+  "thresholds": {
+    "phash_distance": 4,
+    "thumbnail_mae": 12.0,
+    "aspect_ratio_tolerance": 0.05
+  },
+  "note": "Near-duplicate candidates are a conservative screen and require visual review before exclusion."
+}

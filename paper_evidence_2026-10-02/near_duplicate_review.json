@@ -1,0 +1,12 @@
+{
+  "review_date": "2026-10-02",
+  "review_method": "manual_visual_inspection",
+  "candidate": {
+    "train": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\images\\train\\v8_train__base_train_7e1a901343b0f1f0b155.jpg",
+    "validation": "E:\\Python-program\\Detect\\ultralytics\\dataset\\repartition_v13_cut_feeder_hard_corrected\\images\\val\\v8_train__base_train_3f35df777145c6bc391c.jpg",
+    "phash_distance": 0,
+    "thumbnail_mae": 0.4990234375
+  },
+  "decision": "same_site_same_equipment_different_framing",
+  "implication": "The current validation split is not proven independent at site or equipment-entity level."
+}

@@ -18,6 +18,7 @@ from ultralytics.nn.modules import (
     C2PSA,
     C3,
     C3TR,
+    CBAM,
     ELAN1,
     OBB,
     OBB26,
@@ -38,10 +39,10 @@ from ultralytics.nn.modules import (
     C3k2,
     C3x,
     CBFuse,
-    CBAM,
     CBLinear,
     Classify,
     Concat,
+    ContextGate,
     Conv,
     Conv2,
     ConvTranspose,
@@ -2029,6 +2030,9 @@ def parse_model(d, ch, verbose=True):
         elif m is CBAM:
             c2 = ch[f]
             args = [c2, *args]
+        elif m is ContextGate:
+            c2 = ch[f[0]]
+            args = [[ch[x] for x in f], *args]
         elif m is Concat:
             c2 = sum(ch[x] for x in f)
         elif m in frozenset(

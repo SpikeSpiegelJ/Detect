@@ -111,10 +111,39 @@ class DFLoss(nn.Module):
 class BboxLoss(nn.Module):
     """Criterion class for computing training losses for bounding boxes."""
 
-    def __init__(self, reg_max: int = 16):
-        """Initialize the BboxLoss module with regularization maximum and DFL settings."""
+    def __init__(
+        self,
+        reg_max: int = 16,
+        nwd_gain: float = 0.0,
+        nwd_threshold: float = 0.04,
+        nwd_constant: float = 12.8,
+    ):
+        """Initialize box regression with optional scale-adaptive normalized Wasserstein distance (NWD)."""
         super().__init__()
+        if not 0 <= nwd_gain <= 1 or nwd_threshold <= 0 or nwd_constant <= 0:
+            raise ValueError("nwd_gain must be in [0, 1], while nwd_threshold and nwd_constant must be positive")
         self.dfl_loss = DFLoss(reg_max) if reg_max > 1 else None
+        self.nwd_gain = nwd_gain
+        self.nwd_threshold = nwd_threshold
+        self.nwd_constant = nwd_constant
+
+    @staticmethod
+    def normalized_wasserstein_loss(
+        pred_bboxes: torch.Tensor, target_bboxes: torch.Tensor, constant: float
+    ) -> torch.Tensor:
+        """Return NWD loss for xyxy boxes represented in input-image pixels."""
+        pred_center = (pred_bboxes[:, :2] + pred_bboxes[:, 2:]) / 2
+        target_center = (target_bboxes[:, :2] + target_bboxes[:, 2:]) / 2
+        pred_size = pred_bboxes[:, 2:] - pred_bboxes[:, :2]
+        target_size = target_bboxes[:, 2:] - target_bboxes[:, :2]
+        distance = (pred_center - target_center).square().sum(-1) + (pred_size - target_size).square().sum(-1) / 4
+        return 1 - torch.exp(-torch.sqrt(distance.clamp_min(1e-9)) / constant)
+
+    def small_target_weight(self, target_bboxes: torch.Tensor, imgsz: torch.Tensor) -> torch.Tensor:
+        """Return the NWD mixing weight from normalized square-root box area."""
+        size = target_bboxes[:, 2:] - target_bboxes[:, :2]
+        scale = torch.sqrt(size.prod(-1).clamp_min(0) / imgsz.prod())
+        return ((self.nwd_threshold - scale) / self.nwd_threshold).clamp(0, 1) * self.nwd_gain
 
     def forward(
         self,
@@ -131,7 +160,15 @@ class BboxLoss(nn.Module):
         """Compute IoU and DFL losses for bounding boxes."""
         weight = target_scores[fg_mask].sum(-1, keepdim=True)
         iou = bbox_iou(pred_bboxes[fg_mask], target_bboxes[fg_mask], xywh=False, CIoU=True)
-        loss_iou = ((1.0 - iou) * weight).sum() / target_scores_sum
+        localization_loss = 1.0 - iou.flatten()
+        if self.nwd_gain:
+            positive_stride = stride.expand(pred_bboxes.shape[0], -1, -1)[fg_mask]
+            pred_pixels = pred_bboxes[fg_mask] * positive_stride
+            target_pixels = target_bboxes[fg_mask] * positive_stride
+            nwd_loss = self.normalized_wasserstein_loss(pred_pixels, target_pixels, self.nwd_constant)
+            nwd_weight = self.small_target_weight(target_pixels, imgsz)
+            localization_loss = torch.lerp(localization_loss, nwd_loss, nwd_weight)
+        loss_iou = (localization_loss.unsqueeze(1) * weight).sum() / target_scores_sum
 
         # DFL loss
         if self.dfl_loss:
@@ -350,6 +387,14 @@ class v8DetectionLoss:
         self.fl_gamma = float(getattr(h, "fl_gamma", 0.0))
         if self.fl_gamma < 0:
             raise ValueError(f"fl_gamma must be non-negative, but got {self.fl_gamma}")
+        self.class_margin_gain = float(getattr(h, "class_margin_gain", 0.0))
+        self.class_margin = float(getattr(h, "class_margin", 0.2))
+        self.context_loss_gain = float(getattr(h, "context_loss_gain", 0.0))
+        if self.class_margin_gain < 0 or self.class_margin < 0 or self.context_loss_gain < 0:
+            raise ValueError("class_margin_gain, class_margin, and context_loss_gain must be non-negative")
+        self.context_gates = [module for module in model.modules() if getattr(module, "is_context_gate", False)]
+        for gate in self.context_gates:
+            gate.capture_attention = bool(self.context_loss_gain)
         self.stride = m.stride  # model strides
         self.nc = m.nc  # number of classes
         self.no = m.nc + m.reg_max * 4
@@ -372,7 +417,12 @@ class v8DetectionLoss:
             stride=self.stride.tolist(),
             topk2=tal_topk2,
         )
-        self.bbox_loss = BboxLoss(m.reg_max).to(device)
+        self.bbox_loss = BboxLoss(
+            m.reg_max,
+            nwd_gain=float(getattr(h, "nwd_gain", 0.0)),
+            nwd_threshold=float(getattr(h, "nwd_threshold", 0.04)),
+            nwd_constant=float(getattr(h, "nwd_constant", 12.8)),
+        ).to(device)
         self.proj = torch.arange(m.reg_max, dtype=torch.float, device=device)
 
     def classification_loss(self, pred_scores: torch.Tensor, target_scores: torch.Tensor) -> torch.Tensor:
@@ -386,6 +436,58 @@ class v8DetectionLoss:
         if self.class_weights is not None:
             cls_loss *= self.class_weights
         return cls_loss.sum()
+
+    def class_margin_loss(
+        self, pred_scores: torch.Tensor, target_scores: torch.Tensor, fg_mask: torch.Tensor
+    ) -> torch.Tensor:
+        """Penalize foreground anchors whose hardest negative class is too close to the matched class."""
+        if not fg_mask.any():
+            return pred_scores.sum() * 0
+        logits = pred_scores[fg_mask]
+        matched_scores = target_scores[fg_mask]
+        labels = matched_scores.argmax(-1)
+        positive_logits = logits.gather(1, labels.unsqueeze(1)).squeeze(1)
+        negative_logits = logits.masked_fill(F.one_hot(labels, self.nc).bool(), -torch.inf).max(-1).values
+        quality = matched_scores.max(-1).values
+        return (
+            F.relu(self.class_margin - positive_logits + negative_logits) * quality
+        ).sum() / quality.sum().clamp_min(1)
+
+    @staticmethod
+    def box_foreground_mask(
+        batch_idx: torch.Tensor, bboxes: torch.Tensor, shape: torch.Size, device: torch.device, dtype: torch.dtype
+    ) -> torch.Tensor:
+        """Rasterize normalized xywh boxes into a binary foreground mask at a gate's spatial resolution."""
+        _, _, height, width = shape
+        target = torch.zeros(shape, device=device, dtype=dtype)
+        if not len(bboxes):
+            return target
+        boxes = bboxes.to(device)
+        indices = batch_idx.to(device).long().flatten()
+        x1 = ((boxes[:, 0] - boxes[:, 2] / 2) * width).floor().long().clamp(0, width - 1)
+        y1 = ((boxes[:, 1] - boxes[:, 3] / 2) * height).floor().long().clamp(0, height - 1)
+        x2 = ((boxes[:, 0] + boxes[:, 2] / 2) * width).ceil().long().clamp(1, width)
+        y2 = ((boxes[:, 1] + boxes[:, 3] / 2) * height).ceil().long().clamp(1, height)
+        for image_index, left, top, right, bottom in zip(indices, x1, y1, x2, y2):
+            target[image_index, 0, top:bottom, left:right] = 1
+        return target
+
+    def context_foreground_loss(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
+        """Supervise context gates with box-derived foreground masks without adding image-level labels."""
+        losses = []
+        for gate in self.context_gates:
+            logits = gate.gate_logits
+            gate.gate_logits = None
+            if logits is None:
+                continue
+            target = self.box_foreground_mask(
+                batch["batch_idx"], batch["bboxes"], logits.shape, logits.device, logits.dtype
+            )
+            positives = target.sum()
+            negatives = target.numel() - positives
+            positive_weight = (negatives / positives.clamp_min(1)).clamp(1, 20)
+            losses.append(F.binary_cross_entropy_with_logits(logits, target, pos_weight=positive_weight))
+        return torch.stack(losses).mean() if losses else batch["bboxes"].sum() * 0
 
     def preprocess(self, targets: torch.Tensor, batch_size: int, scale_tensor: torch.Tensor) -> torch.Tensor:
         """Preprocess targets by converting to tensor format and scaling coordinates."""
@@ -450,7 +552,11 @@ class v8DetectionLoss:
         target_scores_sum = max(target_scores.sum(), 1)
 
         # Cls loss with optional focal modulation and class weighting
+        zero = pred_scores.sum() * 0
+        margin_loss = self.class_margin_loss(pred_scores, target_scores, fg_mask) if self.class_margin_gain else zero
+        context_loss = self.context_foreground_loss(batch) if self.context_loss_gain else zero
         loss[1] = self.classification_loss(pred_scores, target_scores) / target_scores_sum
+        loss[1] += self.class_margin_gain * margin_loss
 
         # Bbox loss
         if fg_mask.sum():
@@ -469,10 +575,16 @@ class v8DetectionLoss:
         loss[0] *= self.hyp.box  # box gain
         loss[1] *= self.hyp.cls  # cls gain
         loss[2] *= self.hyp.dfl  # dfl gain
+        loss[1] += self.context_loss_gain * context_loss
+        loss_items = dict(zip(self.loss_names, loss.detach()))
+        if self.class_margin_gain:
+            loss_items["margin_loss"] = (self.hyp.cls * self.class_margin_gain * margin_loss).detach()
+        if self.context_loss_gain:
+            loss_items["context_loss"] = (self.context_loss_gain * context_loss).detach()
         return (
             (fg_mask, target_gt_idx, target_bboxes, anchor_points, stride_tensor),
             loss,
-            dict(zip(self.loss_names, loss.detach())),
+            loss_items,
         )  # loss(box, cls, dfl)
 
     def parse_output(
