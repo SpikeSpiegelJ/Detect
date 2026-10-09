@@ -3,16 +3,15 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
-from collections import Counter
 import json
 import os
-from pathlib import Path
 import random
 import shutil
+from argparse import ArgumentParser
+from collections import Counter
+from pathlib import Path
 
 import yaml
-
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_SOURCE = ROOT / "repartition_v13_cut_feeder_hard_corrected"

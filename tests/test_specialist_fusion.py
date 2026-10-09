@@ -2,12 +2,11 @@
 """Tests for mapping two-class specialist predictions into the nine-class detection space."""
 
 import importlib.util
-from pathlib import Path
 import sys
 import unittest
+from pathlib import Path
 
 import torch
-
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))

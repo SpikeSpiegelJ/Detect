@@ -3,17 +3,15 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
 import json
+from argparse import ArgumentParser
 from pathlib import Path
 from time import perf_counter
 
 import torch
 
 from ultralytics.models.yolo.detect import DetectionValidator
-
 from val_specialist_fusion import DEFAULT_DATA, DEFAULT_GENERAL, load_general_ensemble
-
 
 ROOT = Path(__file__).resolve().parent
 
@@ -62,9 +60,7 @@ class FeederRelationCalibration(torch.nn.Module):
 
     def forward(self, x, augment=False, profile=False, visualize=False, embed=None):
         """Run the general TTA ensemble and calibrate its feeder scores before NMS."""
-        prediction = self.predictions(
-            self.general(x, augment=True, profile=profile, visualize=visualize, embed=embed)
-        )
+        prediction = self.predictions(self.general(x, augment=True, profile=profile, visualize=visualize, embed=embed))
         return self.calibrate(prediction), None
 
 
@@ -88,12 +84,8 @@ class SpatialFeederRelationCalibration(FeederRelationCalibration):
         scores, indices = anchor_scores.topk(count, dim=1)
         anchors = boxes.gather(1, indices.unsqueeze(-1).expand(-1, -1, 4))
         feeder, anchors = boxes.unsqueeze(2), anchors.unsqueeze(1)
-        dx = (
-            (feeder[..., 0] - anchors[..., 0]).abs() - (feeder[..., 2] + anchors[..., 2]) / 2
-        ).clamp_min(0)
-        dy = (
-            (feeder[..., 1] - anchors[..., 1]).abs() - (feeder[..., 3] + anchors[..., 3]) / 2
-        ).clamp_min(0)
+        dx = ((feeder[..., 0] - anchors[..., 0]).abs() - (feeder[..., 2] + anchors[..., 2]) / 2).clamp_min(0)
+        dy = ((feeder[..., 1] - anchors[..., 1]).abs() - (feeder[..., 3] + anchors[..., 3]) / 2).clamp_min(0)
         height, width = image_size
         distance = torch.sqrt((dx / width).square() + (dy / height).square())
         return (scores.unsqueeze(1) * torch.exp(-distance / self.temperature)).amax(dim=2)
@@ -107,9 +99,9 @@ class SpatialFeederRelationCalibration(FeederRelationCalibration):
         rru_support = self.nearby_support(boxes, scores[:, self.rru_id], image_size)
         antenna_support = self.nearby_support(boxes, scores[:, self.antenna_id], image_size)
         evidence = (rru_support - antenna_support) / (rru_support + antenna_support).clamp_min(1e-6)
-        scores[:, self.feeder_rru_id] = (
-            scores[:, self.feeder_rru_id] * torch.exp(self.strength * evidence)
-        ).clamp_max(1)
+        scores[:, self.feeder_rru_id] = (scores[:, self.feeder_rru_id] * torch.exp(self.strength * evidence)).clamp_max(
+            1
+        )
         scores[:, self.feeder_antenna_id] = (
             scores[:, self.feeder_antenna_id] * torch.exp(-self.strength * evidence)
         ).clamp_max(1)
@@ -117,9 +109,7 @@ class SpatialFeederRelationCalibration(FeederRelationCalibration):
 
     def forward(self, x, augment=False, profile=False, visualize=False, embed=None):
         """Run general TTA and candidate-level spatial calibration before NMS."""
-        prediction = self.predictions(
-            self.general(x, augment=True, profile=profile, visualize=visualize, embed=embed)
-        )
+        prediction = self.predictions(self.general(x, augment=True, profile=profile, visualize=visualize, embed=embed))
         return self.calibrate(prediction, x.shape[-2:]), None
 
 

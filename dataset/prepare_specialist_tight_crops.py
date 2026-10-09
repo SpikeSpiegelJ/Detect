@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
+import json
 from argparse import ArgumentParser
 from hashlib import sha256
-import json
 from pathlib import Path
 
 import cv2
@@ -13,7 +13,6 @@ import numpy as np
 import yaml
 
 from dataset.prepare_specialist_ablation_configs import images, label_classes, paired_label
-
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_SOURCE = Path("E:/Python-program/Detect/ultralytics/dataset/repartition_v14_cut_feeder_specialist")

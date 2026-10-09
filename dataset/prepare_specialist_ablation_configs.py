@@ -3,13 +3,12 @@
 
 from __future__ import annotations
 
+import json
 from argparse import ArgumentParser
 from hashlib import sha256
-import json
 from pathlib import Path
 
 import yaml
-
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA = ROOT / "data_repartition_v14_cut_feeder_specialist.yaml"

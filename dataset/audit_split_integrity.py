@@ -3,17 +3,16 @@
 
 from __future__ import annotations
 
+import json
+import re
 from argparse import ArgumentParser
 from collections import Counter
 from hashlib import sha256
-import json
 from pathlib import Path
-import re
 
 import cv2
 import numpy as np
 import yaml
-
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA = ROOT / "data_repartition_v13_cut_feeder_hard_corrected_9c.yaml"
@@ -49,9 +48,15 @@ def split_images(data_file: Path, descriptor: dict, split: str) -> list[Path]:
     for entry in entries:
         path = resolve_entry(data_file, descriptor, entry)
         if path.is_file() and path.suffix.lower() == ".txt":
-            images.extend(Path(line.strip()).resolve() for line in path.read_text(encoding="utf-8-sig").splitlines() if line.strip())
+            images.extend(
+                Path(line.strip()).resolve()
+                for line in path.read_text(encoding="utf-8-sig").splitlines()
+                if line.strip()
+            )
         elif path.is_dir():
-            images.extend(item.resolve() for item in path.iterdir() if item.is_file() and item.suffix.lower() in IMAGE_SUFFIXES)
+            images.extend(
+                item.resolve() for item in path.iterdir() if item.is_file() and item.suffix.lower() in IMAGE_SUFFIXES
+            )
         else:
             raise FileNotFoundError(f"Dataset split entry does not exist: {path}")
     return sorted(set(images))
@@ -122,22 +127,35 @@ def cross_split_pairs(samples: list[dict], phash_distance: int, thumbnail_mae: f
             if left["split"] == right["split"]:
                 continue
             if left["signature"]["pixels"] == right["signature"]["pixels"]:
-                exact.append({"a": str(left["image"]), "a_split": left["split"], "b": str(right["image"]), "b_split": right["split"]})
+                exact.append(
+                    {
+                        "a": str(left["image"]),
+                        "a_split": left["split"],
+                        "b": str(right["image"]),
+                        "b_split": right["split"],
+                    }
+                )
                 continue
             distance = (left["signature"]["phash"] ^ right["signature"]["phash"]).bit_count()
             aspect_ratio = left["signature"]["aspect"] / right["signature"]["aspect"]
             if distance > phash_distance or not 0.95 <= aspect_ratio <= 1.05:
                 continue
-            mae = float(np.abs(left["signature"]["thumbnail"].astype(float) - right["signature"]["thumbnail"].astype(float)).mean())
+            mae = float(
+                np.abs(
+                    left["signature"]["thumbnail"].astype(float) - right["signature"]["thumbnail"].astype(float)
+                ).mean()
+            )
             if mae <= thumbnail_mae:
-                near.append({
-                    "a": str(left["image"]),
-                    "a_split": left["split"],
-                    "b": str(right["image"]),
-                    "b_split": right["split"],
-                    "phash_distance": distance,
-                    "thumbnail_mae": mae,
-                })
+                near.append(
+                    {
+                        "a": str(left["image"]),
+                        "a_split": left["split"],
+                        "b": str(right["image"]),
+                        "b_split": right["split"],
+                        "phash_distance": distance,
+                        "thumbnail_mae": mae,
+                    }
+                )
     return exact, near
 
 
@@ -177,7 +195,11 @@ def audit(data_file: Path, phash_distance: int = 4, thumbnail_mae: float = 12.0)
         "identity_overlap": identity_overlap,
         "exact_pixel_duplicates": exact,
         "near_duplicate_candidates": near,
-        "thresholds": {"phash_distance": phash_distance, "thumbnail_mae": thumbnail_mae, "aspect_ratio_tolerance": 0.05},
+        "thresholds": {
+            "phash_distance": phash_distance,
+            "thumbnail_mae": thumbnail_mae,
+            "aspect_ratio_tolerance": 0.05,
+        },
         "note": "Near-duplicate candidates are a conservative screen and require visual review before exclusion.",
     }
 

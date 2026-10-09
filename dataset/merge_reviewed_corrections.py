@@ -79,9 +79,7 @@ def validate_dataset(root: Path) -> dict:
     """Validate image-label pairing and basic YOLO label syntax."""
     result = {}
     for split in ("train", "val"):
-        images = sorted(
-            path for path in (root / "images" / split).iterdir() if path.suffix.lower() in IMAGE_SUFFIXES
-        )
+        images = sorted(path for path in (root / "images" / split).iterdir() if path.suffix.lower() in IMAGE_SUFFIXES)
         labels = sorted((root / "labels" / split).glob("*.txt"))
         if {path.stem for path in images} != {path.stem for path in labels}:
             raise RuntimeError(f"Image-label pairing differs in {split}")

@@ -3,15 +3,14 @@
 
 from __future__ import annotations
 
+import json
 from argparse import ArgumentParser
 from hashlib import sha256
-import json
 from pathlib import Path
 
 import torch
 
 from ultralytics import YOLO
-
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_RUNS = ROOT / "runs" / "train"
@@ -103,10 +102,7 @@ def main():
             )
             report["variants"][variant].append(metrics_record(metrics, split, weight))
             output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-            print(
-                f"{variant} {split}: mAP50={metrics.box.map50:.4f}, "
-                f"mAP50-95={metrics.box.map:.4f}"
-            )
+            print(f"{variant} {split}: mAP50={metrics.box.map50:.4f}, mAP50-95={metrics.box.map:.4f}")
 
 
 if __name__ == "__main__":

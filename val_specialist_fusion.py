@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
 import json
+from argparse import ArgumentParser
 from pathlib import Path
 from time import perf_counter
 
@@ -14,15 +14,12 @@ from ultralytics import YOLO
 from ultralytics.models.yolo.detect import DetectionValidator
 from ultralytics.nn.tasks import Ensemble
 
-
 ROOT = Path(__file__).resolve().parent
 DEFAULT_GENERAL = [
     ROOT / "runs" / "train" / "yolo26s_v9_trainval_o2m_dfl15_ft" / "weights" / "best.pt",
     ROOT / "runs" / "train" / "yolo26m_v9_trainval_ft" / "weights" / "best.pt",
 ]
-DEFAULT_SPECIALIST = (
-    ROOT / "runs" / "train" / "yolo26s_v14_cut_feeder_specialist-2" / "weights" / "best.pt"
-)
+DEFAULT_SPECIALIST = ROOT / "runs" / "train" / "yolo26s_v14_cut_feeder_specialist-2" / "weights" / "best.pt"
 DEFAULT_DATA = ROOT / "dataset" / "data_repartition_v13_cut_feeder_hard_corrected_9c.yaml"
 
 
@@ -51,9 +48,7 @@ class SpecialistFusion(torch.nn.Module):
 
     def forward(self, x, augment=False, profile=False, visualize=False, embed=None):
         """Run general TTA and specialist single-scale inference, then map two scores into nine classes."""
-        general = self.predictions(
-            self.general(x, augment=True, profile=profile, visualize=visualize, embed=embed)
-        )
+        general = self.predictions(self.general(x, augment=True, profile=profile, visualize=visualize, embed=embed))
         specialist = self.predictions(
             self.specialist(x, augment=False, profile=profile, visualize=visualize, embed=embed)
         )
@@ -158,10 +153,7 @@ def validate_setting(args, general: Ensemble, specialist: torch.nn.Module, weigh
         "per_class": per_class,
         "save_dir": str(validator.save_dir),
     }
-    print(
-        f"weight={weight:g}, iou={iou:g}, mAP50={metrics.box.map50:.4f}, "
-        f"mAP50-95={metrics.box.map:.4f}"
-    )
+    print(f"weight={weight:g}, iou={iou:g}, mAP50={metrics.box.map50:.4f}, mAP50-95={metrics.box.map:.4f}")
     return result
 
 

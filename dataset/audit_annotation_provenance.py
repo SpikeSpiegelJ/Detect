@@ -42,11 +42,7 @@ def unmatched_rows(left: list[tuple[float, ...]], right: list[tuple[float, ...]]
     unmatched = []
     for row in left:
         match = next(
-            (
-                index
-                for index, candidate in enumerate(remaining)
-                if np.allclose(row, candidate, atol=1e-6, rtol=0)
-            ),
+            (index for index, candidate in enumerate(remaining) if np.allclose(row, candidate, atol=1e-6, rtol=0)),
             None,
         )
         if match is None:
@@ -84,9 +80,7 @@ def equivalent_delta(original: Path, reviewed: Path, current: Path, iou_threshol
         if match < iou_threshold:
             return False
     return not any(
-        np.allclose(removed, candidate, atol=1e-6, rtol=0)
-        for removed in reviewed_removed
-        for candidate in current_rows
+        np.allclose(removed, candidate, atol=1e-6, rtol=0) for removed in reviewed_removed for candidate in current_rows
     )
 
 
@@ -172,7 +166,7 @@ def main():
                 added_class_counts[change["class"]] += 1
                 corrected_class_counts[change["class"]] += 1
             else:
-                transition_counts[f'{change["from"]}->{change["to"]}'] += 1
+                transition_counts[f"{change['from']}->{change['to']}"] += 1
                 corrected_class_counts[change["to"]] += 1
 
     current_report = None

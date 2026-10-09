@@ -2,13 +2,12 @@
 """Tests for the read-only dataset split integrity audit."""
 
 import importlib.util
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 
 import cv2
 import numpy as np
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("audit_split_integrity", ROOT / "dataset/audit_split_integrity.py")
